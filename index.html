@@ -6,11 +6,12 @@
 <title>Eco Protocolo 2050 - Engenharia de Materiais</title>
 <style>
   :root {
-    --bg-color: #0f172a;
+    --bg-color: #050a15;
     --text-color: #4ade80;
+    --accent-color: #3b82f6;
     --error-color: #f87171;
-    --box-bg: #1e293b;
-    --border-color: #14532d;
+    --box-bg: #111827;
+    --border-color: #1e293b;
   }
 
   body {
@@ -18,242 +19,229 @@
     color: var(--text-color);
     font-family: 'Courier New', Courier, monospace;
     margin: 0;
-    padding: 20px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    justify-content: center;
+    box-sizing: border-box;
   }
 
-  .container {
-    max-width: 600px;
+  /* HUD - STATUS E TIMER */
+  #hud {
     width: 100%;
-    background-color: rgba(30, 41, 59, 0.95);
-    padding: 2rem;
+    max-width: 700px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.9);
+    padding: 15px 20px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
-  }
-
-  header {
-    width: 100%;
-    max-width: 600px;
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
     margin-bottom: 20px;
+    box-sizing: border-box;
+    display: none; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   }
 
-  .status {
-    animation: pulse 2s infinite;
-    font-size: 0.8rem;
-    color: #16a34a;
+  .timer {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #4ade80;
+    font-variant-numeric: tabular-nums;
   }
 
-  /* Progress Icons */
-  .progress-bar {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    padding: 10px;
-    background: rgba(15, 23, 42, 0.5);
+  .timer.urgent {
+    color: var(--error-color);
+    animation: flash 1s infinite;
+  }
+
+  .team-display {
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  /* CONTENTOR PRINCIPAL */
+  .container {
+    max-width: 700px;
+    width: 100%; 
+    background-color: var(--box-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  h1 { font-size: 1.4rem; color: white; margin-top: 0; text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
+  h2 { font-size: 1.1rem; color: #60a5fa; margin-top: 0; display: flex; align-items: center; gap: 10px; text-transform: uppercase; }
+  
+  .box {
+    background-color: #030712;
+    padding: 20px;
+    border-left: 4px solid var(--accent-color);
     border-radius: 4px;
+    margin: 20px 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
   }
 
-  .step-icon {
-    opacity: 0.3;
-    transition: opacity 0.5s, transform 0.5s;
-  }
-
-  .step-icon.active {
-    opacity: 1;
-    transform: scale(1.2);
-    color: white;
-  }
-
-  .step-icon.done {
-    opacity: 0.8;
-    color: var(--text-color);
+  .bonus-box {
+    background-color: rgba(74, 222, 128, 0.1);
+    border: 1px solid #4ade80;
+    color: #4ade80;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+    display: none;
+    font-weight: bold;
+    text-align: center;
+    font-size: 0.85rem;
+    animation: slideIn 0.5s ease-out;
   }
 
   input[type="text"] {
     width: 100%;
-    background-color: #020617;
-    border: 1px solid var(--border-color);
-    padding: 12px;
+    background-color: #000;
+    border: 1px solid #334155;
+    padding: 15px;
     color: white;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     font-family: inherit;
-    box-sizing: border-box;
     font-size: 1rem;
+    text-align: center;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s;
   }
+
+  input:focus { border-color: var(--accent-color); }
 
   button {
     width: 100%;
-    padding: 12px;
-    background-color: #15803d;
+    padding: 16px;
+    background-color: var(--accent-color);
     color: white;
     border: none;
     font-weight: bold;
     cursor: pointer;
     font-family: inherit;
-    transition: background 0.3s;
-    font-size: 1rem;
+    font-size: 0.95rem;
     text-transform: uppercase;
+    border-radius: 4px;
+    transition: all 0.2s;
+    letter-spacing: 1px;
   }
 
-  button:hover { background-color: #16a34a; }
+  button:hover { background-color: #2563eb; transform: translateY(-2px); }
 
   .error-msg {
     color: var(--error-color);
     font-weight: bold;
-    margin-top: 10px;
-    font-size: 0.9rem;
+    margin-top: 15px;
+    font-size: 0.85rem;
     display: none;
     padding: 10px;
-    background-color: rgba(248, 113, 113, 0.1);
     border: 1px solid var(--error-color);
+    background: rgba(248, 113, 113, 0.05);
     border-radius: 4px;
   }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    border: 1px solid #334155;
-  }
-  th, td { padding: 8px; border-bottom: 1px solid #334155; text-align: left; }
-  th { background-color: #0f172a; color: #94a3b8; }
-  td { color: #e2e8f0; }
 
   .hidden { display: none; }
-  .box {
-    background-color: #0f172a;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    margin: 15px 0;
-    font-size: 0.9rem;
-  }
-  h1 { font-size: 1.5rem; color: white; margin-bottom: 0.5rem; }
-  h2 { font-size: 1.2rem; color: white; display: flex; align-items: center; gap: 10px; margin-top: 0; }
-  
-  .data-text { color: #94a3b8; font-size: 0.9rem; margin-bottom: 10px; }
-  .highlight { color: white; font-weight: bold; }
 
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  @keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
 </head>
 <body>
 
-  <header>
-    <div><span style="font-weight:bold;">SISTEMA_PET_v4.0</span></div>
-    <div class="status" id="systemStatus">STATUS: BLOQUEADO</div>
-  </header>
+  <!-- HUD SUPERIOR -->
+  <div id="hud">
+    <div class="team-display">Equipa: <span id="displayTeamName">---</span></div>
+    <div class="timer" id="timer">50:00</div>
+  </div>
 
   <div class="container">
     
-    <!-- Barra de Ícones (Legenda Visual) -->
-    <div class="progress-bar" id="progressBar">
-      <div class="step-icon active" id="icon0" title="Briefing Video">📺</div>
-      <div class="step-icon" id="icon1" title="Protocolo Ciclo">♻️</div>
-      <div class="step-icon" id="icon2" title="Protocolo Magnetismo">🧲</div>
-      <div class="step-icon" id="icon3" title="Protocolo Identidade">🆔</div>
-      <div class="step-icon" id="icon4" title="Protocolo Precisão">📏</div>
-      <div class="step-icon" id="icon5" title="Protocolo Estratégia">💡</div>
-    </div>
-    
-    <!-- PROTOCOLO 0: VIDEO PADLET -->
-    <div id="screen-start">
-      <div style="text-align: center;">
-        <h1>PROTOCOLO: BRIEFING</h1>
-        <p>Acesso restrito a Engenheiros Autorizados.</p>
-        <div class="box" style="text-align: left;">
-          <p class="data-text">O sistema requer a validação do novo paradigma económico.</p>
-          <p class="data-text"><span class="highlight">TAREFA:</span> Assistam ao registo visual no <strong>Padlet</strong> da turma.</p>
-          <p class="data-text"><strong>CHAVE:</strong> Qual é o modelo económico apresentado que imita os ciclos da natureza?</p>
-        </div>
-        <input type="text" id="inputStart" placeholder="Introduza a chave de acesso...">
-        <button onclick="checkLevel0()">AUTENTICAR</button>
-        <div id="error0" class="error-msg"></div>
+    <!-- ECRÃ 0: REGISTO DE EQUIPA -->
+    <div id="screen-setup">
+      <h1>UNIDADE DE ENGENHARIA 2050</h1>
+      <div class="box">
+        <p>Bem-vindos à Unidade de Recuperação de Materiais. Para iniciar a vossa missão de 50 minutos, identifiquem a equipa de engenharia.</p>
       </div>
+      <input type="text" id="teamInput" placeholder="NOME DA EQUIPA...">
+      <button onclick="startApp()">AUTENTICAR E INICIAR TIMER</button>
+      <div id="errorSetup" class="error-msg"></div>
+    </div>
+
+    <!-- PROTOCOLO 0: VIDEO PADLET -->
+    <div id="screen-start" class="hidden">
+      <h1>PROTOCOLO: BRIEFING</h1>
+      <div class="box">
+        <p class="data-text">O sistema requer a validação do modelo económico vigente em 2050.</p>
+        <p class="data-text"><span class="highlight">TAREFA:</span> Assistam ao registo visual na Coluna 1 do <strong>Padlet</strong>.</p>
+        <p class="data-text"><strong>CHAVE:</strong> Qual é o modelo económico apresentado que funciona em ciclo fechado, imitando a natureza?</p>
+      </div>
+      <input type="text" id="inputStart" placeholder="Introduza a chave de acesso...">
+      <button onclick="checkLevel0()">AUTENTICAR ACESSO</button>
+      <div id="error0" class="error-msg"></div>
     </div>
 
     <!-- PROTOCOLO 1: CONCEITO -->
     <div id="screen-level1" class="hidden">
       <h2>PROTOCOLO: CICLO</h2>
-      <p>A Economia Linear atingiu o fim da sua viabilidade. O sistema exige a transição.</p>
-      
       <div class="box">
-        <span style="color:var(--text-color)">ANÁLISE:</span><br>
-        Na Economia Circular, o conceito de "lixo" é substituído pela reintrodução de materiais no sistema produtivo.
+        <span style="color:var(--text-color); font-weight:bold;">ANÁLISE DE FLUXO:</span><br>
+        Na Economia Circular, os produtos são desenhados para serem regenerados.
         <br><br>
-        <strong>PERGUNTA:</strong> Quando o material termina o seu uso e volta à fábrica, ele deixa de ser lixo e passa a ser um novo _________?
+        <strong>PERGUNTA:</strong> Quando um material termina o seu ciclo de uso e volta ao sistema produtivo, ele deixa de ser lixo e passa a ser considerado um novo _________?
       </div>
-
       <input type="text" id="input1" placeholder="R...">
       <button onclick="checkLevel1()">CONFIRMAR CONCEITO</button>
       <div id="error1" class="error-msg"></div>
     </div>
 
-    <!-- PROTOCOLO 2: TRIAGEM MAGNETICA -->
+    <!-- PROTOCOLO 2: TRIAGEM (PESCA MAGNÉTICA) -->
     <div id="screen-level2" class="hidden">
       <h2>PROTOCOLO: MAGNETISMO</h2>
-      <p>Interferências detetadas nos fluxos de matéria-prima.</p>
-      
       <div class="box">
-        <span style="color:var(--text-color)">OPERACIONAL:</span><br>
-        Utilizem o íman do vosso kit para rastrear as letras escondidas na caixa de resíduos.
-        <br><br>
-        <strong>CHAVE:</strong> Qual é a palavra técnica de 7 letras que define o processo de separação industrial de materiais?
+        <p><span style="color:var(--accent-color); font-weight:bold;">OPERACIONAL:</span> Contaminantes ferrosos bloqueiam o bico da extrusora.</p>
+        <p>Dirijam-se ao ponto de triagem na sala. Utilizem o <strong>íman, a linha e a vara</strong> para pescar os resíduos metálicos.</p>
+        <p style="color:white; font-weight:bold;">DICA: As peças capturadas revelam a palavra técnica secreta.</p>
       </div>
-
-      <input type="text" id="input2" placeholder="Introduzam a palavra técnica encontrada...">
+      <input type="text" id="input2" placeholder="PALAVRA SECRETA ENCONTRADA...">
       <button onclick="checkLevel2()">VALIDAR TRIAGEM</button>
       <div id="error2" class="error-msg"></div>
     </div>
 
-    <!-- PROTOCOLO 3: IDENTIDADE -->
+    <!-- PROTOCOLO 3: IDENTIDADE (BÓNUS 5712) -->
     <div id="screen-level3" class="hidden">
-      <h2>PROTOCOLO: IDENTIDADE</h2>
-      <p>Pureza do polímero requer verificação manual.</p>
-      
+      <h2>PROTOCOLO: IDENTIDADE POLIMÉRICA</h2>
       <div class="box">
-        <span style="color:var(--text-color)">PESQUISA TÉCNICA:</span><br>
-        Voltem ao <strong>Padlet</strong> e descubram mais sobre os plásticos e as suas propriedades.
-        <br><br>
-        <strong>TAREFA DE CAMPO:</strong> Depois de identificarem o tipo de plástico que pode ser usado nesta máquina, observem a <strong>estação de plástico</strong> na sala e introduzam o código numérico correspondente.
+        <p>Analisem a sequência de materiais na mesa: <strong>PP</strong>, <strong>PP+PET</strong> e <strong>PET</strong>.</p>
+        <p>Introduzam o código numérico SPI correspondente a esta ordem exata.</p>
+        <p style="font-size:0.8rem; color:#94a3b8; margin-top:10px;">Atenção: A identificação completa de todos os componentes da garrafa (incluindo a tampa) desbloqueia privilégios temporais.</p>
       </div>
-
-      <input type="text" id="input3" placeholder="Código numérico do polímero...">
+      <div id="bonusMsg" class="bonus-box"></div>
+      <input type="text" id="input3" placeholder="Código numérico (Ex: 123...)">
       <button onclick="checkLevel3()">REGISTAR POLÍMERO</button>
       <div id="error3" class="error-msg"></div>
     </div>
 
-    <!-- PROTOCOLO 4: PRECISÃO -->
+    <!-- PROTOCOLO 4: PRECISÃO (PAQUÍMETRO) -->
     <div id="screen-level4" class="hidden">
-      <h2>PROTOCOLO: PRECISÃO</h2>
-      <p>Configuração das lâminas de corte para filamento 1.75mm.</p>
-      
+      <h2>PROTOCOLO: PRECISÃO DIMENSIONAL</h2>
       <div class="box">
-        <strong>TABELA DE CALIBRAGEM v4.0</strong>
-        <table>
-          <tr><th>Espessura Parede</th><th>Largura Corte</th></tr>
-          <tr><td>0.35 mm</td><td>6 mm</td></tr>
-          <tr><td>0.30 mm</td><td>7 mm</td></tr>
-          <tr><td>0.25 mm</td><td>8 mm</td></tr>
-          <tr><td>0.20 mm</td><td>9 mm</td></tr>
-          <tr><td>0.15 mm</td><td>10 mm</td></tr>
-        </table>
+        <p><span style="color:var(--accent-color); font-weight:bold;">MEDIÇÃO:</span> Utilizem o paquímetro para medir a espessura da garrafa PET selecionada.</p>
+        <p>Consultem a <strong>Tabela de Calibragem (Versão Papel)</strong> disponível na vossa mesa.</p>
+        <br>
+        <p style="color:white;">Qual deve ser a largura da fita de corte (em mm) para esta espessura?</p>
       </div>
-
-      <div class="box">
-        <span style="color:var(--text-color)">MEDIÇÃO:</span> Utilizem o paquímetro. Meçam a espessura da parede da vossa amostra e consultem a tabela para determinar o ajuste.
-      </div>
-
-      <input type="text" id="input4" placeholder="Valor da largura em mm...">
+      <input type="text" id="input4" placeholder="Largura em mm...">
       <button onclick="checkLevel4()">CALIBRAR LÂMINA</button>
       <div id="error4" class="error-msg"></div>
     </div>
@@ -261,102 +249,148 @@
     <!-- PROTOCOLO 5: ESTRATÉGIA -->
     <div id="screen-level5" class="hidden">
       <h2>PROTOCOLO: ESTRATÉGIA</h2>
-      <p>A reciclagem é o último recurso. O sistema exige eficiência máxima.</p>
-      
       <div class="box">
-        <span style="color:var(--text-color)">HIERARQUIA:</span><br>
-        A economia circular privilegia a conservação sobre a transformação. 
+        <span style="color:var(--text-color); font-weight:bold;">HIERARQUIA DOS R's:</span><br>
+        A Economia Circular privilegia a prevenção. 
         <br><br>
-        <strong>QUESTÃO:</strong> Qual é o primeiro dos 3 R's, que visa evitar o consumo desnecessário antes de qualquer reciclagem?
+        <strong>QUESTÃO:</strong> Qual é o primeiro dos 3 R's, que atua na origem para evitar a produção de resíduos?
       </div>
-
       <input type="text" id="input5" placeholder="R...">
-      <button onclick="checkLevel5()">ATIVAR MOTOR</button>
+      <button onclick="checkLevel5()">ATIVAR MOTOR FUSÃO</button>
       <div id="error5" class="error-msg"></div>
     </div>
 
     <!-- SUCESSO -->
     <div id="screen-success" class="hidden" style="text-align: center;">
-      <h1 style="color: #4ade80;">SISTEMA OPERACIONAL</h1>
-      <div class="box" style="border: 1px solid #16a34a; background: rgba(22, 163, 74, 0.1);">
-        <p style="font-size: 1.1rem; color: white;">Protocolos Concluídos.</p>
-        <p>A PetMachine atingiu os 260ºC. A pultrusão de PET pode ser iniciada pelo supervisor da unidade.</p>
+      <h1 style="color: #4ade80; border-color: #16a34a;">SISTEMA OPERACIONAL</h1>
+      <div class="box" style="border-left-color: #16a34a; background: rgba(22, 163, 74, 0.1);">
+        <p style="font-size: 1.1rem; color: white; font-weight:bold;">PARABÉNS, EQUIPA <span id="finalTeamName"></span>!</p>
+        <p>Missão concluída com sucesso. A PetMachine atingiu os 260ºC.</p>
       </div>
-      <p style="font-size:0.8rem; color:#64748b;">Relatório Final: Ciclo Fechado com Sucesso.</p>
+      <p style="font-size:0.8rem; color:#64748b;">Aguardem autorização do supervisor para iniciar a pultrusão.</p>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="screen-gameover" class="hidden" style="text-align: center;">
+      <h1 style="color: var(--error-color); border-color: var(--error-color);">SISTEMA BLOQUEADO</h1>
+      <div class="box" style="border-left-color: var(--error-color); background: rgba(248, 113, 113, 0.1);">
+        <p>Tempo limite de 50 minutos excedido.</p>
+        <p>A unidade entrou em modo de hibernação por segurança.</p>
+      </div>
+      <button onclick="location.reload()" style="background-color: #475569;">REINICIAR UNIDADE</button>
     </div>
 
   </div>
 
 <script>
-  function updateProgress(step) {
-    const icons = ['icon0', 'icon1', 'icon2', 'icon3', 'icon4', 'icon5'];
-    icons.forEach((id, index) => {
-      const el = document.getElementById(id);
-      el.classList.remove('active', 'done');
-      if (index < step) el.classList.add('done');
-      if (index === step) el.classList.add('active');
-    });
+  let timeLeft = 3000; // 50 minutos
+  let timerInterval;
+  let currentTeam = "";
+
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        goToScreen('screen-gameover');
+      }
+    }, 1000);
   }
 
-  function goToScreen(screenId, step) {
-    const screens = ['screen-start', 'screen-level1', 'screen-level2', 'screen-level3', 'screen-level4', 'screen-level5', 'screen-success'];
-    screens.forEach(id => document.getElementById(id).classList.add('hidden'));
-    document.getElementById(screenId).classList.remove('hidden');
+  function updateTimerDisplay() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const timerEl = document.getElementById('timer');
+    timerEl.innerText = display;
     
-    updateProgress(step);
-    
-    const statusEl = document.getElementById('systemStatus');
-    if(screenId === 'screen-start') statusEl.innerText = "STATUS: BLOQUEADO";
-    else if(screenId === 'screen-success') statusEl.innerText = "STATUS: OPERACIONAL";
-    else statusEl.innerText = "STATUS: EM PROGRESSO...";
+    if (timeLeft < 300) timerEl.classList.add('urgent');
   }
 
-  function showError(elementId, msg) {
-    const el = document.getElementById(elementId);
-    el.innerText = msg;
-    el.style.display = 'block';
+  function goToScreen(id) {
+    document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }
+
+  function startApp() {
+    const name = document.getElementById('teamInput').value.trim();
+    if (name.length < 2) {
+      document.getElementById('errorSetup').innerText = "Introduza o nome da equipa para autenticação.";
+      document.getElementById('errorSetup').style.display = "block";
+      return;
+    }
+    currentTeam = name;
+    document.getElementById('displayTeamName').innerText = name;
+    document.getElementById('hud').style.display = 'flex';
+    startTimer();
+    goToScreen('screen-start');
   }
 
   function checkLevel0() {
     const val = document.getElementById('inputStart').value.toLowerCase().trim();
-    if (val.includes('circular')) goToScreen('screen-level1', 1);
-    else showError('error0', 'ACESSO NEGADO: Chave de briefing incorreta.');
+    if (val.includes('circular')) goToScreen('screen-level1');
+    else showError('error0', 'ACESSO NEGADO: Chave incorreta.');
   }
 
   function checkLevel1() {
     const val = document.getElementById('input1').value.toLowerCase().trim();
-    if (val.includes('recurso')) goToScreen('screen-level2', 2);
-    else showError('error1', 'ERRO: Conceito inválido. O lixo passa a ser um R_______?');
+    if (val.includes('recurso')) goToScreen('screen-level2');
+    else showError('error1', 'ERRO: Conceito inválido.');
   }
 
   function checkLevel2() {
     const val = document.getElementById('input2').value.toLowerCase().trim();
-    if (val === 'triagem') goToScreen('screen-level3', 3);
-    else showError('error2', 'ERRO: Operação falhou. Usem o íman para encontrar as 7 letras.');
+    if (val === 'triagem') goToScreen('screen-level3');
+    else showError('error2', 'ERRO: Palavra incorreta. Analisem as peças pescadas.');
   }
 
   function checkLevel3() {
-    const val = document.getElementById('input3').value.toLowerCase().trim();
-    if (val === '1' || val === 'pet') goToScreen('screen-level4', 4);
-    else showError('error3', 'ERRO: Polímero não identificado no banco de dados.');
+    const val = document.getElementById('input3').value.trim();
+    const errorEl = document.getElementById('error3');
+    const bonusEl = document.getElementById('bonusMsg');
+
+    if (val === '5712') {
+      timeLeft += 300; // +5 minutos
+      updateTimerDisplay();
+      bonusEl.innerText = "✨ BÓNUS EXTRA: Identificação Total (Corpo + Tampa) detetada. +5 MINUTOS ADICIONADOS.";
+      bonusEl.style.display = "block";
+      errorEl.style.display = "none";
+      setTimeout(() => {
+        bonusEl.style.display = "none";
+        goToScreen('screen-level4');
+      }, 3000);
+    } else if (val === '571') {
+      goToScreen('screen-level4');
+    } else {
+      showError('error3', 'ERRO: Código SPI inválido para a sequência de materiais.');
+    }
   }
 
   function checkLevel4() {
-    const val = document.getElementById('input4').value.toLowerCase().replace('mm', '').trim();
-    // Lista de valores válidos da coluna "Largura Corte" da tabela
-    const validValues = ['6', '7', '8', '9', '10'];
-    
-    if (validValues.includes(val)) {
-      goToScreen('screen-level5', 5);
+    const val = document.getElementById('input4').value.trim();
+    // Lista de valores válidos configurados no código original
+    if (val === '8' || val === '7' || val === '9' || val === '10' || val === '6') {
+      goToScreen('screen-level5');
     } else {
-      showError('error4', 'ERRO: Calibragem incorreta. O valor deve corresponder à tabela técnica para a espessura medida.');
+      showError('error4', 'ERRO: Calibragem incompatível com a tabela técnica.');
     }
   }
 
   function checkLevel5() {
     const val = document.getElementById('input5').value.toLowerCase().trim();
-    if (val.includes('reduzir')) goToScreen('screen-success', 6);
-    else showError('error5', 'ERRO: Estratégia ineficiente. Qual é o primeiro R?');
+    if (val.includes('reduzir')) {
+      clearInterval(timerInterval);
+      document.getElementById('finalTeamName').innerText = currentTeam;
+      goToScreen('screen-success');
+    } else showError('error5', 'ERRO: Estratégia prioritária incorreta.');
+  }
+
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.innerText = msg;
+    el.style.display = 'block';
   }
 </script>
 </body>
