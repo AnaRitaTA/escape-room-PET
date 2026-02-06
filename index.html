@@ -166,14 +166,14 @@
     <div id="screen-setup">
       <h1>MISSÃO 2050</h1>
       <div class="description">
-        BENVINDOS À UNIDADE DE RECUPERAÇÃO. IDENTIFIQUEM A VOSSA EQUIPA PARA INICIAR OS PROTOCOLOS INDUSTRIAIS.
+        BEM-VINDOS À UNIDADE DE RECUPERAÇÃO. IDENTIFIQUEM A VOSSA EQUIPA PARA INICIAR OS PROTOCOLOS INDUSTRIAIS.
       </div>
       <input type="text" id="teamNameInput" placeholder="NOME DA EQUIPA..." autocomplete="off">
       <button onclick="startMission()">INICIAR MISSÃO</button>
-      <div id="errorSetup" class="error-box">INTRODUZA O NOME DA EQUIPA.</div>
+      <div id="errorSetup" class="error-box">INTRODUZA O NOME DA EQUIPA PARA AUTENTICAR.</div>
     </div>
 
-    <!-- FASE 1: BRIEFING VIDEO -->
+    <!-- FASE 1: BRIEFING VÍDEO -->
     <div id="screen-video" class="hidden">
       <h2>PROTOCOLO: BRIEFING</h2>
       <div class="box-info">
@@ -182,7 +182,7 @@
       </div>
       <input type="text" id="inputVideo" placeholder="RESPOSTA..." autocomplete="off">
       <button onclick="checkVideo()">VALIDAR ACESSO</button>
-      <div id="errorVideo" class="error-box">CHAVE INCORRETA.</div>
+      <div id="errorVideo" class="error-box">CHAVE INCORRETA. CONSULTE O VÍDEO NO PADLET.</div>
     </div>
 
     <!-- FASE 2: CONCEITO -->
@@ -194,7 +194,7 @@
       </div>
       <input type="text" id="inputCiclo" placeholder="R..." autocomplete="off">
       <button onclick="checkCiclo()">CONFIRMAR DADOS</button>
-      <div id="errorCiclo" class="error-box">TENTE NOVAMENTE.</div>
+      <div id="errorCiclo" class="error-box">TENTE NOVAMENTE. O LIXO VIRA UM R...</div>
     </div>
 
     <!-- FASE 3: TRIAGEM -->
@@ -206,7 +206,7 @@
       </div>
       <input type="text" id="inputTriagem" placeholder="PALAVRA..." autocomplete="off">
       <button onclick="checkTriagem()">VALIDAR TRIAGEM</button>
-      <div id="errorTriagem" class="error-box">PALAVRA INCORRETA.</div>
+      <div id="errorTriagem" class="error-box">PALAVRA INCORRETA. VERIFIQUE OS METAIS PESCADOS.</div>
     </div>
 
     <!-- FASE 4: IDENTIDADE PET (BÓNUS 5712) -->
@@ -218,8 +218,8 @@
       </div>
       <div id="bonusText" class="bonus-alert">✨ BÓNUS: TAMPA DETETADA! +5 MINUTOS ADICIONADOS.</div>
       <input type="text" id="inputPET" placeholder="CÓDIGO (EX: 123...)" autocomplete="off">
-      <button id="btnPET" onclick="checkPET()">AUTENTICAR</button>
-      <div id="errorPET" class="error-box">CÓDIGO INVÁLIDO.</div>
+      <button id="btnPET" onclick="checkPET()">AUTENTICAR POLÍMEROS</button>
+      <div id="errorPET" class="error-box">CÓDIGO INVÁLIDO. ANALISE OS SÍMBOLOS SPI NA MESA.</div>
     </div>
 
     <!-- FASE 5: PRECISÃO -->
@@ -231,7 +231,7 @@
       </div>
       <input type="text" id="inputPrecisao" placeholder="LARGURA (MM)..." autocomplete="off">
       <button onclick="checkPrecisao()">CALIBRAR LÂMINA</button>
-      <div id="errorPrecisao" class="error-box">VALOR INCORRETO.</div>
+      <div id="errorPrecisao" class="error-box">VALOR INCORRETO PARA A ESPESSURA MEDIDA.</div>
     </div>
 
     <!-- FASE 6: ESTRATÉGIA -->
@@ -242,7 +242,7 @@
       </div>
       <input type="text" id="inputFinal" placeholder="R..." autocomplete="off">
       <button onclick="checkFinal()">LIGAR MOTOR FUSÃO</button>
-      <div id="errorFinal" class="error-box">ESTRATÉGIA INCORRETA.</div>
+      <div id="errorFinal" class="error-box">ESTRATÉGIA INCORRETA. QUAL É O R MAIS IMPORTANTE?</div>
     </div>
 
     <!-- SUCESSO -->
@@ -250,9 +250,9 @@
       <h1 style="color: #4ade80;">SISTEMA OPERACIONAL</h1>
       <div class="box-info" style="border-color: #4ade80;">
         <p class="description" style="color:white; font-weight:bold;">PARABÉNS EQUIPA!</p>
-        <p>A MISSÃO FOI CONCLUÍDA. AGUARDEM PELO DINAMIZADOR.</p>
+        <p>A MISSÃO FOI CONCLUÍDA. AGUARDEM PELO DINAMIZADOR PARA INICIAR A PRODUÇÃO.</p>
       </div>
-      <button onclick="location.reload()">NOVA EQUIPA</button>
+      <button onclick="location.reload()">NOVA EQUIPA / REINICIAR</button>
     </div>
 
   </div>
@@ -281,17 +281,19 @@
       const secs = timeLeft % 60;
       document.getElementById('timerDisplay').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       if (timeLeft < 300) document.getElementById('timerDisplay').classList.add('urgent');
-      if (timeLeft <= 0) { clearInterval(timerInterval); alert("TEMPO ESGOTADO!"); location.reload(); }
+      if (timeLeft <= 0) { clearInterval(timerInterval); alert("TEMPO ESGOTADO! O SISTEMA ENTROU EM HIBERNAÇÃO."); location.reload(); }
     }, 1000);
   }
 
   function checkVideo() {
-    if (document.getElementById('inputVideo').value.toLowerCase().includes('circular')) next('screen-video', 'screen-ciclo');
+    const val = document.getElementById('inputVideo').value.toLowerCase().trim();
+    if (val.includes('circular')) next('screen-video', 'screen-ciclo');
     else showErr('errorVideo');
   }
 
   function checkCiclo() {
-    if (document.getElementById('inputCiclo').value.toLowerCase().includes('recurso')) next('screen-ciclo', 'screen-triagem');
+    const val = document.getElementById('inputCiclo').value.toLowerCase().trim();
+    if (val.includes('recurso')) next('screen-ciclo', 'screen-triagem');
     else showErr('errorCiclo');
   }
 
@@ -306,13 +308,17 @@
       timeLeft += 300;
       document.getElementById('bonusText').style.display = 'block';
       document.getElementById('btnPET').disabled = true;
-      setTimeout(() => next('screen-pet', 'screen-precisao'), 3000);
+      setTimeout(() => {
+        document.getElementById('bonusText').style.display = 'none';
+        next('screen-pet', 'screen-precisao');
+      }, 3000);
     } else if (val === '571') next('screen-pet', 'screen-precisao');
     else showErr('errorPET');
   }
 
   function checkPrecisao() {
     const val = document.getElementById('inputPrecisao').value.trim();
+    // Aceita valores comuns da tabela técnica
     if (['6','7','8','9','10'].includes(val)) next('screen-precisao', 'screen-final');
     else showErr('errorPrecisao');
   }
@@ -333,7 +339,7 @@
   function showErr(id) {
     const el = document.getElementById(id);
     el.style.display = 'block';
-    setTimeout(() => el.style.display = 'none', 2000);
+    setTimeout(() => el.style.display = 'none', 2500);
   }
 </script>
 </body>
