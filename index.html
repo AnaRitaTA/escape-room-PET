@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eco Protocolo 2050 - Engenharia de Materiais</title>
+<title>Eco Protocolo 2050 - Competição Industrial</title>
 <style>
   :root {
     --bg-color: #050a15;
@@ -12,6 +12,7 @@
     --error-color: #f87171;
     --box-bg: #111827;
     --border-color: #1e293b;
+    --panel-bg: rgba(15, 23, 42, 0.95);
   }
 
   body {
@@ -27,427 +28,489 @@
     box-sizing: border-box;
   }
 
-  /* HUD - STATUS E TIMER OTIMIZADO PARA MOBILE */
-  #hud {
+  /* LEADERBOARD - MONITORIZAÇÃO EM TEMPO REAL */
+  #leaderboard {
     width: 100%;
     max-width: 700px;
-    display: none; 
-    flex-direction: column;
-    gap: 10px;
-    background: rgba(15, 23, 42, 0.95);
+    background: var(--panel-bg);
     padding: 15px;
     border-radius: 12px;
     border: 2px solid var(--border-color);
     margin-bottom: 15px;
     box-sizing: border-box;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-    text-align: center;
+    display: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   }
 
-  @media (min-width: 480px) {
-    #hud {
-      flex-direction: row;
-      justify-content: space-between;
-      text-align: left;
-    }
-  }
-
-  .timer {
-    font-size: 2.2rem; /* Aumentado para visibilidade */
-    font-weight: 900;
-    color: #4ade80;
-    font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
-  }
-
-  .timer.urgent {
-    color: var(--error-color);
-    animation: flash 1s infinite;
-  }
-
-  .team-display {
-    font-size: 1rem;
-    color: var(--accent-color);
+  .leaderboard-title {
+    font-size: 0.9rem;
     text-transform: uppercase;
-    font-weight: bold;
-    letter-spacing: 1px;
+    color: #94a3b8;
+    margin-bottom: 12px;
+    text-align: center;
+    font-weight: 900;
+    letter-spacing: 2px;
   }
+
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  @media (min-width: 600px) {
+    .teams-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .team-card {
+    background: #030712;
+    padding: 12px 8px;
+    border-radius: 8px;
+    border: 2px solid #334155;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .team-card.active { 
+    border-color: var(--accent-color); 
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    background: rgba(59, 130, 246, 0.05);
+  }
+
+  .team-card-name { 
+    font-size: 0.8rem; 
+    font-weight: 900; 
+    display: block; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+    margin-bottom: 6px;
+    color: white;
+  }
+  
+  .team-card-progress { font-size: 0.75rem; color: #64748b; }
+  .team-card-level { color: var(--text-color); font-weight: 900; }
+
+  /* HUD - TIMER */
+  #hud {
+    width: 100%;
+    max-width: 700px;
+    display: none; 
+    justify-content: space-between;
+    align-items: center;
+    background: var(--panel-bg);
+    padding: 15px 20px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    margin-bottom: 15px;
+    box-sizing: border-box;
+  }
+
+  .timer { 
+    font-size: 2.2rem; 
+    font-weight: 900; 
+    color: #4ade80; 
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .timer.urgent { color: var(--error-color); animation: flash 1s infinite; }
 
   /* CONTENTOR PRINCIPAL */
   .container {
     max-width: 700px;
     width: 100%; 
     background-color: var(--box-bg);
-    padding: 1.5rem;
-    border-radius: 16px;
+    padding: 1.8rem;
+    border-radius: 20px;
     border: 2px solid var(--border-color);
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
     box-sizing: border-box;
     position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
   }
 
-  h1 { 
-    font-size: 1.6rem; 
+  .box { 
+    background-color: #030712; 
+    padding: 22px; 
+    border-left: 6px solid var(--accent-color); 
+    border-radius: 10px; 
+    margin: 22px 0; 
+    font-size: 1.1rem; 
+    line-height: 1.8; 
+    color: #cbd5e1; 
+  }
+  
+  input[type="text"] { 
+    width: 100%; 
+    background-color: #000; 
+    border: 2px solid #334155; 
+    padding: 20px; 
     color: white; 
-    margin-top: 0; 
+    margin-bottom: 22px; 
+    font-family: inherit; 
+    font-size: 1.3rem; 
     text-align: center; 
-    border-bottom: 2px solid var(--border-color); 
-    padding-bottom: 12px; 
+    border-radius: 10px; 
+    outline: none; 
+  }
+  
+  input:focus { border-color: var(--accent-color); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+
+  button { 
+    width: 100%; 
+    padding: 20px; 
+    background-color: var(--accent-color); 
+    color: white; 
+    border: none; 
+    font-weight: 900; 
+    cursor: pointer; 
+    font-size: 1.2rem; 
     text-transform: uppercase; 
-    letter-spacing: 2px;
-  }
-  
-  h2 { 
-    font-size: 1.4rem; 
-    color: #60a5fa; 
-    margin-top: 0; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    gap: 10px; 
-    text-transform: uppercase;
-    text-align: center;
-  }
-  
-  .box {
-    background-color: #030712;
-    padding: 20px;
-    border-left: 5px solid var(--accent-color);
-    border-radius: 8px;
-    margin: 20px 0;
-    font-size: 1.05rem; /* Mais legível em telemóvel */
-    line-height: 1.7;
-    color: #cbd5e1;
-  }
-
-  .bonus-box {
-    background-color: rgba(74, 222, 128, 0.15);
-    border: 2px solid #4ade80;
-    color: #4ade80;
-    padding: 18px;
-    border-radius: 8px;
-    margin: 15px 0;
-    display: none;
-    font-weight: 900;
-    text-align: center;
-    font-size: 1rem;
-    animation: slideIn 0.5s ease-out;
-  }
-
-  input[type="text"] {
-    width: 100%;
-    background-color: #000;
-    border: 2px solid #334155;
-    padding: 18px;
-    color: white;
-    margin-bottom: 20px;
-    font-family: inherit;
-    font-size: 1.2rem; /* Aumentado para evitar zoom automático em iOS */
-    text-align: center;
-    border-radius: 8px;
-    outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
-  }
-
-  input:focus { 
-    border-color: var(--accent-color); 
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
-  }
-
-  button {
-    width: 100%;
-    padding: 20px;
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    font-weight: 900;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    border-radius: 8px;
+    border-radius: 10px; 
     transition: all 0.2s;
-    letter-spacing: 1.5px;
-    box-shadow: 0 4px 0 #1d4ed8;
+    letter-spacing: 1px;
   }
+  
+  button:active { transform: translateY(3px); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  button:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 #1d4ed8;
-  }
-
-  .error-msg {
-    color: #ffffff;
-    font-weight: bold;
-    margin-top: 15px;
-    font-size: 1rem;
-    display: none;
-    padding: 15px;
-    border: 2px solid var(--error-color);
-    background: rgba(248, 113, 113, 0.2);
-    border-radius: 8px;
+  .bonus-box { 
+    display: none; 
+    background: rgba(74, 222, 128, 0.15); 
+    border: 2px solid #4ade80; 
+    color: #4ade80; 
+    padding: 20px; 
+    border-radius: 10px; 
+    margin: 15px 0; 
+    font-weight: 900; 
     text-align: center;
+    font-size: 1rem;
   }
 
   .hidden { display: none; }
-
   @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-  @keyframes slideIn { from { transform: translateY(-15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-  /* Ajustes para ecrãs muito pequenos */
-  @media (max-width: 360px) {
-    h1 { font-size: 1.2rem; }
-    .timer { font-size: 1.8rem; }
-    .box { font-size: 0.95rem; }
+  /* TEAM SLOTS SELECTION */
+  .slot-btn { 
+    background: #1e293b; 
+    border: 2px solid #334155; 
+    color: #94a3b8; 
+    padding: 18px; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    font-weight: 900; 
+    margin-bottom: 12px; 
+    display: flex; 
+    justify-content: space-between;
+    transition: all 0.2s;
+    font-size: 0.9rem;
   }
+  
+  .slot-btn.occupied { opacity: 0.6; cursor: not-allowed; border-color: var(--error-color); background: #111827; }
+  .slot-btn.selected { border-color: var(--accent-color); color: white; background: rgba(59, 130, 246, 0.2); }
 </style>
 </head>
 <body>
 
-  <!-- HUD SUPERIOR -->
+  <!-- LEADERBOARD -->
+  <div id="leaderboard">
+    <div class="leaderboard-title">Monitorização da Frota de Engenharia</div>
+    <div class="teams-grid" id="teamsGrid">
+      <!-- Gerado via JavaScript -->
+    </div>
+  </div>
+
+  <!-- HUD TIMER -->
   <div id="hud">
-    <div class="team-display">UNIDADE: <span id="displayTeamName" style="color: white;">---</span></div>
+    <div class="team-display">EQUIPA: <span id="displayTeamName">---</span></div>
     <div class="timer" id="timer">50:00</div>
   </div>
 
   <div class="container">
     
-    <!-- ECRÃ 0: REGISTO DE EQUIPA -->
+    <!-- ECRÃ 0: SELEÇÃO DE EQUIPA / SLOT -->
     <div id="screen-setup">
-      <h1>SISTEMA OPERACIONAL</h1>
+      <h1 style="text-align:center; color:white; text-transform:uppercase; letter-spacing:2px;">Sistema de Competição</h1>
       <div class="box">
-        <p>BEM-VINDOS À UNIDADE DE RECUPERAÇÃO 2050.</p>
-        <p>PARA ATIVAR A CONSOLA E INICIAR A CONTAGEM DE 50 MINUTOS, IDENTIFIQUEM A VOSSA EQUIPA.</p>
+        <p>IDENTIFIQUEM A VOSSA UNIDADE DE TRABALHO. O PROGRESSO SERÁ TRANSMITIDO EM TEMPO REAL PARA A CENTRAL DE CONTROLO.</p>
+      </div>
+      <div id="slotsContainer" style="margin-bottom: 25px;">
+        <p style="text-align:center; font-size:0.9rem; color: #64748b;">A estabelecer ligação com o servidor industrial...</p>
       </div>
       <input type="text" id="teamInput" placeholder="NOME DA EQUIPA..." autocomplete="off">
-      <button onclick="startApp()">AUTENTICAR SISTEMA</button>
-      <div id="errorSetup" class="error-msg"></div>
+      <button id="btnStart" onclick="startApp()" disabled>Aguardar Ligação...</button>
     </div>
 
-    <!-- PROTOCOLO 0: VIDEO PADLET -->
+    <!-- PROTOCOLO 0: BRIEFING -->
     <div id="screen-start" class="hidden">
-      <h1>PROTOCOLO: BRIEFING</h1>
+      <h2 style="color:white; justify-content:center;">PROTOCOLO: BRIEFING</h2>
       <div class="box">
-        <p><span class="highlight">TAREFA:</span> ASSISTAM AO VÍDEO NA COLUNA 1 DO <strong>PADLET</strong>.</p>
+        <p><span style="color:var(--accent-color); font-weight:bold;">TAREFA:</span> ASSISTAM AO VÍDEO NA COLUNA 1 DO <strong>PADLET</strong>.</p>
         <p><strong>CHAVE:</strong> QUAL É O MODELO ECONÓMICO APRESENTADO QUE IMITA OS CICLOS DA NATUREZA?</p>
       </div>
       <input type="text" id="inputStart" placeholder="RESPOSTA..." autocomplete="off">
       <button onclick="checkLevel0()">VALIDAR CHAVE</button>
-      <div id="error0" class="error-msg"></div>
     </div>
 
-    <!-- PROTOCOLO 1: CONCEITO -->
+    <!-- PROTOCOLO 1: CICLO -->
     <div id="screen-level1" class="hidden">
       <h2>PROTOCOLO: CICLO</h2>
       <div class="box">
-        <span style="color:var(--accent-color); font-weight:bold;">ANÁLISE DE FLUXO:</span><br>
-        NA ECONOMIA CIRCULAR, O CONCEITO DE "LIXO" DESAPARECE.
-        <br><br>
+        <p>NA ECONOMIA CIRCULAR, O CONCEITO DE "LIXO" DESAPARECE.</p>
         <strong>PERGUNTA:</strong> QUANDO UM MATERIAL VOLTA AO SISTEMA PRODUTIVO, ELE PASSA A SER CONSIDERADO UM NOVO _________?
       </div>
       <input type="text" id="input1" placeholder="R..." autocomplete="off">
       <button onclick="checkLevel1()">CONFIRMAR DADOS</button>
-      <div id="error1" class="error-msg"></div>
     </div>
 
-    <!-- PROTOCOLO 2: TRIAGEM (PESCA MAGNÉTICA) -->
+    <!-- PROTOCOLO 2: MAGNETISMO -->
     <div id="screen-level2" class="hidden">
       <h2>PROTOCOLO: MAGNETISMO</h2>
       <div class="box">
-        <p><span style="color:var(--accent-color); font-weight:bold;">OPERACIONAL:</span> CONTAMINANTES DETETADOS NA LINHA.</p>
         <p>USEM O <strong>ÍMAN, A LINHA E A VARA</strong> NA VOSSA MESA PARA PESCAR OS RESÍDUOS.</p>
         <p style="color:white; font-weight:bold; margin-top: 10px;">DICA: AS PEÇAS PESCADAS REVELAM A PALAVRA TÉCNICA SECRETA.</p>
       </div>
       <input type="text" id="input2" placeholder="PALAVRA ENCONTRADA..." autocomplete="off">
       <button onclick="checkLevel2()">VALIDAR TRIAGEM</button>
-      <div id="error2" class="error-msg"></div>
     </div>
 
-    <!-- PROTOCOLO 3: IDENTIDADE (BÓNUS 5712) -->
+    <!-- PROTOCOLO 3: IDENTIDADE -->
     <div id="screen-level3" class="hidden">
       <h2>PROTOCOLO: IDENTIDADE</h2>
       <div class="box">
         <p>ANALISEM A SEQUÊNCIA NA MESA: <strong>PP</strong>, <strong>PP+PET</strong> E <strong>PET</strong>.</p>
-        <p>INTRODUZAM O CÓDIGO SPI CORRESPONDENTE A ESTA ORDEM.</p>
-        <p style="font-size:0.9rem; color:#94a3b8; margin-top:10px;">BÓNUS: A IDENTIFICAÇÃO DA TAMPA ADICIONA TEMPO AO SISTEMA.</p>
+        <p>INTRODUZAM O CÓDIGO SPI CORRESPONDENTE (EX: 571).</p>
       </div>
       <div id="bonusMsg" class="bonus-box"></div>
-      <input type="text" id="input3" placeholder="CÓDIGO (EX: 123...)" autocomplete="off">
+      <input type="text" id="input3" placeholder="CÓDIGO (EX: 571...)" autocomplete="off">
       <button onclick="checkLevel3()">REGISTAR POLÍMERO</button>
-      <div id="error3" class="error-msg"></div>
     </div>
 
-    <!-- PROTOCOLO 4: PRECISÃO (PAQUÍMETRO) -->
+    <!-- PROTOCOLO 4: PRECISÃO -->
     <div id="screen-level4" class="hidden">
       <h2>PROTOCOLO: PRECISÃO</h2>
       <div class="box">
-        <p><span style="color:var(--accent-color); font-weight:bold;">MEDIÇÃO:</span> USEM O PAQUÍMETRO PARA MEDIR A ESPESSURA DA GARRAFA.</p>
-        <p>CONSULTEM A <strong>TABELA DE PAPEL</strong> NA VOSSA MESA.</p>
-        <br>
+        <p>UTILIZEM O PAQUÍMETRO E CONSULTEM A <strong>TABELA DE PAPEL</strong>.</p>
         <p style="color:white; font-weight:bold;">QUAL É A LARGURA DE CORTE (MM) RECOMENDADA?</p>
       </div>
       <input type="text" id="input4" placeholder="LARGURA EM MM..." autocomplete="off">
       <button onclick="checkLevel4()">CALIBRAR LÂMINA</button>
-      <div id="error4" class="error-msg"></div>
     </div>
 
     <!-- PROTOCOLO 5: ESTRATÉGIA -->
     <div id="screen-level5" class="hidden">
       <h2>PROTOCOLO: ESTRATÉGIA</h2>
       <div class="box">
-        <span style="color:var(--text-color); font-weight:bold;">HIERARQUIA:</span><br>
-        QUAL É O PRIMEIRO DOS 3 R's, QUE EVITA A PRODUÇÃO DE RESÍDUOS NA ORIGEM?
+        <p>QUAL É O PRIMEIRO DOS 3 R'S, QUE EVITA A PRODUÇÃO DE RESÍDUOS NA ORIGEM?</p>
       </div>
       <input type="text" id="input5" placeholder="R..." autocomplete="off">
       <button onclick="checkLevel5()">ATIVAR MOTOR FUSÃO</button>
-      <div id="error5" class="error-msg"></div>
     </div>
 
     <!-- SUCESSO -->
     <div id="screen-success" class="hidden" style="text-align: center;">
       <h1 style="color: #4ade80; border-color: #16a34a;">SISTEMA OPERACIONAL</h1>
       <div class="box" style="border-left-color: #16a34a; background: rgba(22, 163, 74, 0.2);">
-        <p style="font-size: 1.2rem; color: white; font-weight:bold;">MISSÃO CUMPRIDA, <span id="finalTeamName"></span>!</p>
-        <p>A PETMACHINE ATINGIU OS 260ºC E ESTÁ PRONTA.</p>
+        <p style="font-size: 1.3rem; color: white; font-weight:bold;">MISSÃO CUMPRIDA!</p>
+        <p>SISTEMA REATIVADO COM SUCESSO.</p>
+        <p style="font-size: 0.9rem; margin-top: 15px;">A vossa equipa foi a <span id="finishOrder" style="color:#4ade80; font-weight:900;">1</span>ª a terminar!</p>
       </div>
-      <p style="font-size:0.9rem; color:#94a3b8; font-weight: bold; margin-top: 20px;">AGUARDEM PELO DINAMIZADOR.</p>
     </div>
 
     <!-- GAME OVER -->
     <div id="screen-gameover" class="hidden" style="text-align: center;">
-      <h1 style="color: var(--error-color); border-color: var(--error-color);">SISTEMA BLOQUEADO</h1>
-      <div class="box" style="border-left-color: var(--error-color); background: rgba(248, 113, 113, 0.2);">
-        <p>TEMPO ESGOTADO.</p>
-        <p>A UNIDADE ENTROU EM MODO DE HIBERNAÇÃO.</p>
-      </div>
-      <button onclick="location.reload()" style="background-color: #475569;">REINICIAR SISTEMA</button>
+      <h1 style="color: var(--error-color);">TEMPO ESGOTADO</h1>
+      <div class="box" style="border-left-color: var(--error-color);">A unidade de produção entrou em modo de hibernação por segurança.</div>
+      <button onclick="location.reload()">REINICIAR SISTEMA</button>
     </div>
 
   </div>
 
-<script>
-  let timeLeft = 3000; 
-  let timerInterval;
-  let currentTeam = "";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  function startTimer() {
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      updateTimerDisplay();
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        goToScreen('screen-gameover');
+    const firebaseConfig = JSON.parse(__firebase_config);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    let timeLeft = 3000;
+    let timerInterval;
+    let myTeamId = null;
+    let currentLevel = 0;
+    let finishedTeamsCount = 0;
+
+    const init = async () => {
+      try {
+        await signInAnonymously(auth);
+      } catch (err) { console.error("Falha na autenticação industrial:", err); }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const btn = document.getElementById('btnStart');
+        btn.disabled = false;
+        btn.innerText = "AUTENTICAR UNIDADE";
+        listenToTeams();
       }
-    }, 1000);
-  }
+    });
 
-  function updateTimerDisplay() {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    const timerEl = document.getElementById('timer');
-    timerEl.innerText = display;
-    
-    if (timeLeft < 300) timerEl.classList.add('urgent');
-  }
+    function listenToTeams() {
+      const teamsRef = collection(db, 'artifacts', appId, 'public', 'data', 'teams');
+      onSnapshot(teamsRef, (snapshot) => {
+        const grid = document.getElementById('teamsGrid');
+        grid.innerHTML = '';
+        const teamsData = [];
+        finishedTeamsCount = 0;
 
-  function goToScreen(id) {
-    document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-    window.scrollTo(0, 0);
-  }
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          teamsData.push({ id: doc.id, ...data });
+          if (data.finished) finishedTeamsCount++;
+        });
 
-  function startApp() {
-    const name = document.getElementById('teamInput').value.trim();
-    if (name.length < 2) {
-      const err = document.getElementById('errorSetup');
-      err.innerText = "INTRODUZA O NOME DA EQUIPA.";
-      err.style.display = "block";
-      return;
+        // Ordenar: Quem tem nível mais alto primeiro
+        teamsData.sort((a, b) => b.level - a.level);
+
+        teamsData.forEach(team => {
+          const card = document.createElement('div');
+          card.className = `team-card ${team.id === myTeamId ? 'active' : ''}`;
+          card.innerHTML = `
+            <span class="team-card-name">${team.name}</span>
+            <span class="team-card-progress">Nível: <span class="team-card-level">${team.level}/5</span></span>
+          `;
+          grid.appendChild(card);
+        });
+
+        if (!myTeamId) renderSlots(teamsData);
+      }, (err) => console.error("Erro na telemetria:", err));
     }
-    currentTeam = name;
-    document.getElementById('displayTeamName').innerText = name;
-    document.getElementById('hud').style.display = 'flex';
-    startTimer();
-    goToScreen('screen-start');
-  }
 
-  function checkLevel0() {
-    const val = document.getElementById('inputStart').value.toLowerCase().trim();
-    if (val.includes('circular')) {
-      hideErrors();
-      goToScreen('screen-level1');
-    } else showError('error0', 'ACESSO NEGADO: CHAVE INCORRETA.');
-  }
-
-  function checkLevel1() {
-    const val = document.getElementById('input1').value.toLowerCase().trim();
-    if (val.includes('recurso')) {
-      hideErrors();
-      goToScreen('screen-level2');
-    } else showError('error1', 'ERRO: CONCEITO INVÁLIDO.');
-  }
-
-  function checkLevel2() {
-    const val = document.getElementById('input2').value.toLowerCase().trim();
-    if (val === 'triagem') {
-      hideErrors();
-      goToScreen('screen-level3');
-    } else showError('error2', 'ERRO: PALAVRA INCORRETA.');
-  }
-
-  function checkLevel3() {
-    const val = document.getElementById('input3').value.trim();
-    const errorEl = document.getElementById('error3');
-    const bonusEl = document.getElementById('bonusMsg');
-
-    if (val === '5712') {
-      timeLeft += 300; 
-      updateTimerDisplay();
-      bonusEl.innerText = "✨ BÓNUS ATIVADO: +5 MINUTOS ADICIONADOS AO SISTEMA.";
-      bonusEl.style.display = "block";
-      errorEl.style.display = "none";
-      setTimeout(() => {
-        bonusEl.style.display = "none";
-        goToScreen('screen-level4');
-      }, 3000);
-    } else if (val === '571') {
-      hideErrors();
-      goToScreen('screen-level4');
-    } else {
-      showError('error3', 'ERRO: CÓDIGO SPI INVÁLIDO.');
+    function renderSlots(teams) {
+      const container = document.getElementById('slotsContainer');
+      container.innerHTML = '';
+      for (let i = 1; i <= 4; i++) {
+        const teamInSlot = teams.find(t => t.id === `equipa${i}`);
+        const btn = document.createElement('div');
+        btn.className = `slot-btn ${teamInSlot ? 'occupied' : ''}`;
+        btn.innerHTML = `<span>POSTO DE TRABALHO ${i}</span> <span>${teamInSlot ? teamInSlot.name : '[VAGO]'}</span>`;
+        if (!teamInSlot) {
+          btn.onclick = () => selectSlot(`equipa${i}`, btn);
+        }
+        container.appendChild(btn);
+      }
     }
-  }
 
-  function checkLevel4() {
-    const val = document.getElementById('input4').value.trim();
-    if (val === '8' || val === '7' || val === '9' || val === '10' || val === '6') {
-      hideErrors();
-      goToScreen('screen-level5');
-    } else {
-      showError('error4', 'ERRO: CALIBRAGEM INVÁLIDA.');
+    let selectedSlotId = null;
+    window.selectSlot = (id, el) => {
+      document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedSlotId = id;
+    };
+
+    window.startApp = async () => {
+      const name = document.getElementById('teamInput').value.trim();
+      if (!selectedSlotId || name.length < 2) {
+        alert("Atenção Engenheiro: Selecione um posto e identifique a equipa.");
+        return;
+      }
+      
+      myTeamId = selectedSlotId;
+      const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
+      await setDoc(teamRef, { 
+        name, 
+        level: 0, 
+        finished: false, 
+        timestamp: Date.now() 
+      });
+
+      document.getElementById('displayTeamName').innerText = name;
+      document.getElementById('hud').style.display = 'flex';
+      document.getElementById('leaderboard').style.display = 'block';
+      startTimer();
+      goToScreen('screen-start');
+    };
+
+    window.updateLevel = async (lvl) => {
+      currentLevel = lvl;
+      if (myTeamId) {
+        const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
+        await updateDoc(teamRef, { 
+          level: lvl, 
+          finished: lvl === 6,
+          finishTime: lvl === 6 ? Date.now() : null
+        });
+        
+        if (lvl === 6) {
+          // Calcular ordem de chegada
+          document.getElementById('finishOrder').innerText = finishedTeamsCount;
+        }
+      }
+    };
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        const mins = Math.floor(timeLeft / 60);
+        const secs = timeLeft % 60;
+        const timerEl = document.getElementById('timer');
+        timerEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        if (timeLeft < 300) timerEl.classList.add('urgent');
+        if (timeLeft <= 0) { clearInterval(timerInterval); goToScreen('screen-gameover'); }
+      }, 1000);
     }
-  }
 
-  function checkLevel5() {
-    const val = document.getElementById('input5').value.toLowerCase().trim();
-    if (val.includes('reduzir')) {
-      clearInterval(timerInterval);
-      document.getElementById('finalTeamName').innerText = currentTeam;
-      hideErrors();
-      goToScreen('screen-success');
-    } else showError('error5', 'ERRO: ESTRATÉGIA INCORRETA.');
-  }
+    function goToScreen(id) {
+      document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      window.scrollTo(0,0);
+    }
 
-  function showError(id, msg) {
-    const el = document.getElementById(id);
-    el.innerText = msg;
-    el.style.display = 'block';
-  }
+    window.checkLevel0 = () => {
+      if (document.getElementById('inputStart').value.toLowerCase().includes('circular')) {
+        updateLevel(1); goToScreen('screen-level1');
+      } else alert("ACESSO NEGADO: Chave incorreta.");
+    };
 
-  function hideErrors() {
-    document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
-  }
-</script>
+    window.checkLevel1 = () => {
+      if (document.getElementById('input1').value.toLowerCase().includes('recurso')) {
+        updateLevel(2); goToScreen('screen-level2');
+      }
+    };
+
+    window.checkLevel2 = () => {
+      if (document.getElementById('input2').value.toLowerCase().trim() === 'triagem') {
+        updateLevel(3); goToScreen('screen-level3');
+      }
+    };
+
+    window.checkLevel3 = () => {
+      const val = document.getElementById('input3').value.trim();
+      if (val === '5712') { 
+        timeLeft += 300; 
+        document.getElementById('bonusMsg').innerText = "✨ BÓNUS DETETADO: +5 MINUTOS ADICIONADOS!"; 
+        document.getElementById('bonusMsg').style.display = "block";
+        setTimeout(() => { updateLevel(4); goToScreen('screen-level4'); }, 2000);
+      } else if (val === '571') { updateLevel(4); goToScreen('screen-level4'); }
+    };
+
+    window.checkLevel4 = () => {
+      if (['6','7','8','9','10'].includes(document.getElementById('input4').value.trim())) {
+        updateLevel(5); goToScreen('screen-level5');
+      }
+    };
+
+    window.checkLevel5 = () => {
+      if (document.getElementById('input5').value.toLowerCase().includes('reduzir')) {
+        clearInterval(timerInterval);
+        updateLevel(6);
+        goToScreen('screen-success');
+      }
+    };
+
+    init();
+  </script>
 </body>
 </html>
