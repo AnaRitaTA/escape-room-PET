@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eco Protocolo 2050 - Competição Industrial</title>
+<title>Eco Protocolo 2050 - Consola Industrial</title>
+<!-- Usamos uma fonte sans-serif mais legível para telemóvel -->
 <style>
   :root {
     --bg-color: #050a15;
@@ -12,13 +13,12 @@
     --error-color: #f87171;
     --box-bg: #111827;
     --border-color: #1e293b;
-    --panel-bg: rgba(15, 23, 42, 0.95);
   }
 
   body {
     background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
     padding: 10px;
     display: flex;
@@ -28,545 +28,423 @@
     box-sizing: border-box;
   }
 
-  /* LEADERBOARD */
+  /* PAINEL DE COMPETIÇÃO (LEADERBOARD) */
   #leaderboard {
     width: 100%;
-    max-width: 700px;
-    background: var(--panel-bg);
-    padding: 15px;
+    max-width: 600px;
+    background: rgba(15, 23, 42, 0.9);
+    padding: 12px;
     border-radius: 12px;
     border: 2px solid var(--border-color);
     margin-bottom: 15px;
-    box-sizing: border-box;
     display: none;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   }
 
-  .leaderboard-title {
-    font-size: 0.9rem;
+  .leader-title {
+    font-size: 0.8rem;
     text-transform: uppercase;
-    color: #94a3b8;
-    margin-bottom: 12px;
     text-align: center;
-    font-weight: 900;
-    letter-spacing: 2px;
+    margin-bottom: 10px;
+    color: #94a3b8;
+    letter-spacing: 1px;
+    font-weight: bold;
   }
 
   .teams-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 8px;
   }
 
-  @media (min-width: 600px) {
-    .teams-grid { grid-template-columns: repeat(4, 1fr); }
-  }
-
-  .team-card {
+  .team-status {
     background: #030712;
-    padding: 12px 8px;
-    border-radius: 8px;
-    border: 2px solid #334155;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #1e293b;
+    font-size: 0.75rem;
     text-align: center;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
-  .team-card.active { 
-    border-color: var(--accent-color); 
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-    background: rgba(59, 130, 246, 0.05);
-  }
+  .team-status.active { border-color: var(--accent-color); }
+  .lvl-tag { color: white; font-weight: bold; }
 
-  .team-card-name { 
-    font-size: 0.8rem; 
-    font-weight: 900; 
-    display: block; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    white-space: nowrap; 
-    margin-bottom: 6px;
-    color: white;
-  }
-  
-  .team-card-progress { font-size: 0.75rem; color: #64748b; }
-  .team-card-level { color: var(--text-color); font-weight: 900; }
-
-  /* HUD - TIMER */
+  /* HUD - TIMER GIGANTE */
   #hud {
     width: 100%;
-    max-width: 700px;
-    display: none; 
-    justify-content: space-between;
+    max-width: 600px;
+    display: none;
+    flex-direction: column;
     align-items: center;
-    background: var(--panel-bg);
-    padding: 15px 20px;
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
     margin-bottom: 15px;
-    box-sizing: border-box;
   }
 
-  .timer { 
-    font-size: 2.2rem; 
-    font-weight: 900; 
-    color: #4ade80; 
-    font-variant-numeric: tabular-nums;
+  .timer {
+    font-size: 3.5rem; /* Letras muito grandes */
+    font-weight: 900;
+    color: #4ade80;
+    font-family: monospace;
+    text-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
   }
-  
-  .timer.urgent { color: var(--error-color); animation: flash 1s infinite; }
+
+  .timer.urgent { color: var(--error-color); animation: pulse 1s infinite; }
+
+  .team-name-banner {
+    font-size: 1.1rem;
+    color: var(--accent-color);
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: -5px;
+  }
 
   /* CONTENTOR PRINCIPAL */
   .container {
-    max-width: 700px;
-    width: 100%; 
+    max-width: 600px;
+    width: 100%;
     background-color: var(--box-bg);
-    padding: 1.8rem;
+    padding: 25px;
     border-radius: 20px;
     border: 2px solid var(--border-color);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
     box-sizing: border-box;
-    position: relative;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
   }
 
-  .box { 
-    background-color: #030712; 
-    padding: 22px; 
-    border-left: 6px solid var(--accent-color); 
-    border-radius: 10px; 
-    margin: 22px 0; 
-    font-size: 1.1rem; 
-    line-height: 1.8; 
-    color: #cbd5e1; 
-  }
-  
-  input[type="text"] { 
-    width: 100%; 
-    background-color: #000; 
-    border: 2px solid #334155; 
-    padding: 20px; 
-    color: white; 
-    margin-bottom: 22px; 
-    font-family: inherit; 
-    font-size: 1.3rem; 
-    text-align: center; 
-    border-radius: 10px; 
-    outline: none; 
-  }
-  
-  input:focus { border-color: var(--accent-color); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+  h1 { font-size: 1.8rem; color: white; text-align: center; margin-top: 0; text-transform: uppercase; }
+  h2 { font-size: 1.4rem; color: #60a5fa; text-align: center; margin-top: 0; text-transform: uppercase; }
 
-  button { 
-    width: 100%; 
-    padding: 20px; 
-    background-color: var(--accent-color); 
-    color: white; 
-    border: none; 
-    font-weight: 900; 
-    cursor: pointer; 
-    font-size: 1.2rem; 
-    text-transform: uppercase; 
-    border-radius: 10px; 
-    transition: all 0.2s;
-    letter-spacing: 1px;
+  .description {
+    font-size: 1.2rem; /* Legibilidade aumentada */
+    line-height: 1.6;
+    color: #cbd5e1;
+    margin-bottom: 20px;
   }
-  
-  button:active { transform: translateY(3px); }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .bonus-box { 
-    display: none; 
-    background: rgba(74, 222, 128, 0.15); 
-    border: 2px solid #4ade80; 
-    color: #4ade80; 
-    padding: 20px; 
-    border-radius: 10px; 
-    margin: 15px 0; 
-    font-weight: 900; 
+  .box-info {
+    background: #030712;
+    padding: 20px;
+    border-left: 6px solid var(--accent-color);
+    border-radius: 8px;
+    margin: 20px 0;
+  }
+
+  /* INPUTS E BOTÕES PARA TELEMÓVEL */
+  input[type="text"] {
+    width: 100%;
+    background: #000;
+    border: 3px solid #334155;
+    padding: 20px;
+    color: white;
+    font-size: 1.4rem;
     text-align: center;
-    font-size: 1rem;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    outline: none;
+  }
+
+  input:focus { border-color: var(--accent-color); }
+
+  button {
+    width: 100%;
+    padding: 22px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.3rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #1d4ed8;
+    transition: all 0.1s;
+  }
+
+  button:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #1d4ed8;
+  }
+
+  .slot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .slot-card {
+    background: #1e293b;
+    border: 2px solid #334155;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+
+  .slot-card.selected {
+    border-color: white;
+    background: var(--accent-color);
+    color: white;
+  }
+
+  .error-box {
+    background: rgba(248, 113, 113, 0.2);
+    border: 2px solid var(--error-color);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    display: none;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .bonus-alert {
+    background: rgba(74, 222, 128, 0.2);
+    border: 2px solid #4ade80;
+    color: #4ade80;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: none;
+    text-align: center;
+    font-weight: bold;
+    animation: pulse 1s infinite;
   }
 
   .hidden { display: none; }
-  @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-  .slot-btn { 
-    background: #1e293b; 
-    border: 2px solid #334155; 
-    color: #94a3b8; 
-    padding: 18px; 
-    border-radius: 10px; 
-    cursor: pointer; 
-    font-weight: 900; 
-    margin-bottom: 12px; 
-    display: flex; 
-    justify-content: space-between;
-    transition: all 0.2s;
-    font-size: 0.9rem;
-  }
-  
-  .slot-btn.occupied { opacity: 0.6; cursor: not-allowed; border-color: var(--error-color); background: #111827; }
-  .slot-btn.selected { border-color: white; color: white; background: var(--accent-color); box-shadow: 0 0 15px var(--accent-color); }
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 </style>
 </head>
 <body>
 
+  <!-- MONITORIZAÇÃO DE EQUIPAS -->
   <div id="leaderboard">
-    <div class="leaderboard-title">Monitorização da Frota de Engenharia</div>
-    <div class="teams-grid" id="teamsGrid"></div>
+    <div class="leader-title">Painel de Controlo de Frota</div>
+    <div class="teams-grid">
+      <div id="status-1" class="team-status">Posto 1: <span class="lvl-tag">---</span></div>
+      <div id="status-2" class="team-status">Posto 2: <span class="lvl-tag">---</span></div>
+      <div id="status-3" class="team-status">Posto 3: <span class="lvl-tag">---</span></div>
+      <div id="status-4" class="team-status">Posto 4: <span class="lvl-tag">---</span></div>
+    </div>
   </div>
 
+  <!-- HUD TIMER -->
   <div id="hud">
-    <div class="team-display">EQUIPA: <span id="displayTeamName">---</span></div>
-    <div class="timer" id="timer">50:00</div>
+    <div class="timer" id="timerDisplay">50:00</div>
+    <div class="team-name-banner" id="teamBanner">NOME DA EQUIPA</div>
   </div>
 
   <div class="container">
+    
+    <!-- FASE 0: REGISTO -->
     <div id="screen-setup">
-      <h1 style="text-align:center; color:white; text-transform:uppercase; letter-spacing:2px;">Sistema de Competição</h1>
-      <div class="box">
-        <p>IDENTIFIQUEM A VOSSA UNIDADE DE TRABALHO PARA ATIVAR OS PROTOCOLOS INDUSTRIAIS.</p>
+      <h1>MISSÃO 2050</h1>
+      <div class="description">
+        Identifiquem a vossa equipa e escolham o posto de trabalho atribuído.
       </div>
-      <div id="slotsContainer" style="margin-bottom: 25px;">
-        <p style="text-align:center; font-size:0.9rem; color: #64748b;">A estabelecer ligação ao servidor...</p>
+      
+      <div class="slot-grid">
+        <div class="slot-card" id="slot1" onclick="selectSlot(1)">POSTO 1</div>
+        <div class="slot-card" id="slot2" onclick="selectSlot(2)">POSTO 2</div>
+        <div class="slot-card" id="slot3" onclick="selectSlot(3)">POSTO 3</div>
+        <div class="slot-card" id="slot4" onclick="selectSlot(4)">POSTO 4</div>
       </div>
-      <input type="text" id="teamInput" placeholder="NOME DA EQUIPA..." autocomplete="off">
-      <button id="btnStart" onclick="startApp()" disabled>A LIGAR...</button>
-      <div id="errorSetup" style="color:var(--error-color); font-size: 0.8rem; margin-top: 10px; text-align: center; display: none;"></div>
-      <p id="offlineHint" style="display:none; text-align:center; font-size:0.7rem; color:#475569; margin-top:10px;">Problemas de rede? <a href="#" onclick="activateOfflineMode()" style="color:var(--accent-color)">Clique aqui para Modo Local</a></p>
+
+      <input type="text" id="teamNameInput" placeholder="NOME DA EQUIPA..." autocomplete="off">
+      <button onclick="startMission()">INICIAR PROTOCOLOS</button>
+      <div id="errorSetup" class="error-box">Selecione um posto e dê um nome à equipa.</div>
     </div>
 
-    <!-- PROTOCOLO 0: BRIEFING -->
-    <div id="screen-start" class="hidden">
-      <h2 style="color:white; justify-content:center;">PROTOCOLO: BRIEFING</h2>
-      <div class="box">
-        <p><span style="color:var(--accent-color); font-weight:bold;">TAREFA:</span> ASSISTAM AO VÍDEO NA COLUNA 1 DO <strong>PADLET</strong>.</p>
-        <p><strong>CHAVE:</strong> QUAL É O MODELO ECONÓMICO APRESENTADO QUE IMITA OS CICLOS DA NATUREZA?</p>
+    <!-- FASE 1: BRIEFING VIDEO -->
+    <div id="screen-video" class="hidden">
+      <h2>PROTOCOLO: BRIEFING</h2>
+      <div class="box-info">
+        <p class="description">Engenheiros, assistam ao vídeo na <strong>Coluna 1 do Padlet</strong> para validar o modelo económico de 2050.</p>
+        <p style="color:white; font-weight:bold;">Qual é o modelo que imita os ciclos da natureza?</p>
       </div>
-      <input type="text" id="inputStart" placeholder="RESPOSTA..." autocomplete="off">
-      <button onclick="checkLevel0()">VALIDAR CHAVE</button>
+      <input type="text" id="inputVideo" placeholder="RESPOSTA..." autocomplete="off">
+      <button onclick="checkVideo()">VALIDAR ACESSO</button>
+      <div id="errorVideo" class="error-box">Chave incorreta. Consulte o vídeo no Padlet.</div>
     </div>
 
-    <!-- PROTOCOLO 1: CICLO -->
-    <div id="screen-level1" class="hidden">
+    <!-- FASE 2: CONCEITO -->
+    <div id="screen-ciclo" class="hidden">
       <h2>PROTOCOLO: CICLO</h2>
-      <div class="box">
-        <p>NA ECONOMIA CIRCULAR, O CONCEITO DE "LIXO" DESAPARECE.</p>
-        <strong>PERGUNTA:</strong> QUANDO UM MATERIAL VOLTA AO SISTEMA PRODUTIVO, ELE PASSA A SER CONSIDERADO UM NOVO _________?
+      <div class="box-info">
+        <p class="description">Na Economia Circular, o desperdício não existe.</p>
+        <p style="color:white; font-weight:bold;">Quando um material volta à fábrica para ser reutilizado, ele passa a ser um novo _________?</p>
       </div>
-      <input type="text" id="input1" placeholder="R..." autocomplete="off">
-      <button onclick="checkLevel1()">CONFIRMAR DADOS</button>
+      <input type="text" id="inputCiclo" placeholder="R..." autocomplete="off">
+      <button onclick="checkCiclo()">CONFIRMAR CONCEITO</button>
+      <div id="errorCiclo" class="error-box">Tente novamente. O lixo vira um R...</div>
     </div>
 
-    <!-- PROTOCOLO 2: MAGNETISMO -->
-    <div id="screen-level2" class="hidden">
-      <h2>PROTOCOLO: MAGNETISMO</h2>
-      <div class="box">
-        <p>USEM O <strong>ÍMAN, A LINHA E A VARA</strong> NA VOSSA MESA PARA PESCAR OS RESÍDUOS METÁLICOS.</p>
-        <p style="color:white; font-weight:bold; margin-top: 10px;">DICA: AS PEÇAS PESCADAS REVELAM A PALAVRA TÉCNICA SECRETA.</p>
+    <!-- FASE 3: TRIAGEM FÍSICA -->
+    <div id="screen-triagem" class="hidden">
+      <h2>PROTOCOLO: TRIAGEM</h2>
+      <div class="box-info">
+        <p class="description">Dirijam-se ao ponto de triagem. Usem o <strong>íman, a linha e o pau</strong> para pescar os resíduos metálicos.</p>
+        <p style="color:white; font-weight:bold;">Qual é a palavra secreta revelada pelas peças?</p>
       </div>
-      <input type="text" id="input2" placeholder="PALAVRA ENCONTRADA..." autocomplete="off">
-      <button onclick="checkLevel2()">VALIDAR TRIAGEM</button>
+      <input type="text" id="inputTriagem" placeholder="PALAVRA SECRETA..." autocomplete="off">
+      <button onclick="checkTriagem()">VALIDAR TRIAGEM</button>
+      <div id="errorTriagem" class="error-box">Palavra incorreta. Verifique os metais pescados.</div>
     </div>
 
-    <!-- PROTOCOLO 3: IDENTIDADE -->
-    <div id="screen-level3" class="hidden">
+    <!-- FASE 4: IDENTIDADE PET (571 / 5712) -->
+    <div id="screen-pet" class="hidden">
       <h2>PROTOCOLO: IDENTIDADE</h2>
-      <div class="box">
-        <p>ANALISEM A SEQUÊNCIA NA MESA: <strong>PP</strong>, <strong>PP+PET</strong> E <strong>PET</strong>.</p>
-        <p>INTRODUZAM O CÓDIGO SPI CORRESPONDENTE (EX: 571).</p>
+      <div class="box-info">
+        <p class="description">Analisem a sequência na mesa: <strong>PP</strong>, <strong>PP+PET</strong> e <strong>PET</strong>.</p>
+        <p style="color:white; font-weight:bold;">Introduzam o código numérico correspondente a esta ordem.</p>
       </div>
-      <div id="bonusMsg" class="bonus-box"></div>
-      <input type="text" id="input3" placeholder="CÓDIGO (EX: 571...)" autocomplete="off">
-      <button onclick="checkLevel3()">REGISTAR POLÍMERO</button>
+      <div id="bonusText" class="bonus-alert">✨ BÓNUS DETETADO: Identificação da tampa incluída! +5 MINUTOS ADICIONADOS.</div>
+      <input type="text" id="inputPET" placeholder="CÓDIGO (EX: 123...)" autocomplete="off">
+      <button id="btnPET" onclick="checkPET()">AUTENTICAR POLÍMEROS</button>
+      <div id="errorPET" class="error-box">Código inválido. Analise os símbolos SPI.</div>
     </div>
 
-    <!-- PROTOCOLO 4: PRECISÃO -->
-    <div id="screen-level4" class="hidden">
+    <!-- FASE 5: PRECISÃO -->
+    <div id="screen-precisao" class="hidden">
       <h2>PROTOCOLO: PRECISÃO</h2>
-      <div class="box">
-        <p>UTILIZEM O PAQUÍMETRO E CONSULTEM A <strong>TABELA DE PAPEL</strong>.</p>
-        <p style="color:white; font-weight:bold;">QUAL É A LARGURA DE CORTE (MM) RECOMENDADA?</p>
+      <div class="box-info">
+        <p class="description">Usem o <strong>paquímetro</strong> para medir a garrafa e consultem a <strong>tabela em papel</strong> na vossa mesa.</p>
+        <p style="color:white; font-weight:bold;">Qual deve ser a largura de corte (em mm)?</p>
       </div>
-      <input type="text" id="input4" placeholder="LARGURA EM MM..." autocomplete="off">
-      <button onclick="checkLevel4()">CALIBRAR LÂMINA</button>
+      <input type="text" id="inputPrecisao" placeholder="LARGURA (MM)..." autocomplete="off">
+      <button onclick="checkPrecisao()">CALIBRAR LÂMINA</button>
+      <div id="errorPrecisao" class="error-box">Valor incorreto para a espessura medida.</div>
     </div>
 
-    <!-- PROTOCOLO 5: ESTRATÉGIA -->
-    <div id="screen-level5" class="hidden">
+    <!-- FASE 6: ESTRATÉGIA -->
+    <div id="screen-final" class="hidden">
       <h2>PROTOCOLO: ESTRATÉGIA</h2>
-      <div class="box">
-        <p>QUAL É O PRIMEIRO DOS 3 R'S, QUE EVITA A PRODUÇÃO DE RESÍDUOS NA ORIGEM?</p>
+      <div class="box-info">
+        <p class="description">Qual é o primeiro dos 3 R's, que evita a produção de lixo na origem?</p>
       </div>
-      <input type="text" id="input5" placeholder="R..." autocomplete="off">
-      <button onclick="checkLevel5()">ATIVAR MOTOR FUSÃO</button>
+      <input type="text" id="inputFinal" placeholder="R..." autocomplete="off">
+      <button onclick="checkFinal()">ATIVAR MOTOR FUSÃO</button>
+      <div id="errorFinal" class="error-box">Estratégia incorreta. Qual é o R mais importante?</div>
     </div>
 
     <!-- SUCESSO -->
     <div id="screen-success" class="hidden" style="text-align: center;">
-      <h1 style="color: #4ade80; border-color: #16a34a;">SISTEMA OPERACIONAL</h1>
-      <div class="box" style="border-left-color: #16a34a; background: rgba(22, 163, 74, 0.2);">
-        <p style="font-size: 1.3rem; color: white; font-weight:bold;">MISSÃO CUMPRIDA!</p>
-        <p>SISTEMA REATIVADO COM SUCESSO.</p>
-        <p style="font-size: 0.9rem; margin-top: 15px;">A vossa equipa foi a <span id="finishOrder" style="color:#4ade80; font-weight:900;">1</span>ª a terminar!</p>
+      <h1 style="color: #4ade80;">SISTEMA OPERACIONAL</h1>
+      <div class="box-info" style="border-color: #4ade80;">
+        <p class="description" style="color:white; font-weight:bold;">PARABÉNS EQUIPA!</p>
+        <p>A PetMachine está a aquecer. Missão cumprida!</p>
       </div>
+      <button onclick="location.reload()">NOVA EQUIPA</button>
     </div>
 
-    <!-- GAME OVER -->
-    <div id="screen-gameover" class="hidden" style="text-align: center;">
-      <h1 style="color: var(--error-color);">TEMPO ESGOTADO</h1>
-      <button onclick="location.reload()">REINICIAR SISTEMA</button>
-    </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+<script>
+  let timeLeft = 3000; 
+  let timerInterval;
+  let selectedSlot = 0;
+  let myTeamName = "";
 
-    const firebaseConfig = JSON.parse(__firebase_config);
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+  function selectSlot(n) {
+    selectedSlot = n;
+    document.querySelectorAll('.slot-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('slot' + n).classList.add('selected');
+  }
 
-    let timeLeft = 3000;
-    let timerInterval;
-    let myTeamId = null;
-    let currentUser = null;
-    let finishedTeamsCount = 0;
-    let selectedSlotId = null;
-    let isOfflineMode = false;
-
-    const initAuth = async () => {
-      // Timeout para mostrar dica de modo offline se a rede for lenta
-      setTimeout(() => {
-        if (!currentUser) document.getElementById('offlineHint').style.display = 'block';
-      }, 5000);
-
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (err) {
-        console.error("Erro na ligação industrial:", err);
-        activateOfflineMode();
-      }
-    };
-
-    window.activateOfflineMode = () => {
-      isOfflineMode = true;
-      currentUser = { uid: 'offline-user' };
-      const btn = document.getElementById('btnStart');
-      btn.disabled = false;
-      btn.innerText = "AUTENTICAR (MODO LOCAL)";
-      document.getElementById('slotsContainer').innerHTML = '<p style="color:orange; text-align:center; font-size:0.8rem;">MODO LOCAL ATIVO: Progresso não será partilhado.</p>';
-      
-      // Criar slots fictícios
-      const container = document.getElementById('slotsContainer');
-      for (let i = 1; i <= 4; i++) {
-        const btnSlot = document.createElement('div');
-        btnSlot.className = `slot-btn`;
-        btnSlot.innerHTML = `<span>POSTO DE TRABALHO ${i}</span> <span>[VAGO]</span>`;
-        btnSlot.onclick = () => selectSlot(`local${i}`, btnSlot);
-        container.appendChild(btnSlot);
-      }
-    };
-
-    onAuthStateChanged(auth, (user) => {
-      if (user && !isOfflineMode) {
-        currentUser = user;
-        const btn = document.getElementById('btnStart');
-        btn.disabled = false;
-        btn.innerText = "AUTENTICAR UNIDADE";
-        listenToTeams();
-      }
-    });
-
-    function listenToTeams() {
-      if (!currentUser || isOfflineMode) return;
-      const teamsRef = collection(db, 'artifacts', appId, 'public', 'data', 'teams');
-      onSnapshot(teamsRef, (snapshot) => {
-        const grid = document.getElementById('teamsGrid');
-        grid.innerHTML = '';
-        const teamsData = [];
-        finishedTeamsCount = 0;
-
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          teamsData.push({ id: doc.id, ...data });
-          if (data.finished) finishedTeamsCount++;
-        });
-
-        teamsData.sort((a, b) => b.level - a.level);
-
-        teamsData.forEach(team => {
-          const card = document.createElement('div');
-          card.className = `team-card ${team.id === myTeamId ? 'active' : ''}`;
-          card.innerHTML = `
-            <span class="team-card-name">${team.name}</span>
-            <span class="team-card-progress">Nível: <span class="team-card-level">${team.level}/5</span></span>
-          `;
-          grid.appendChild(card);
-        });
-
-        if (!myTeamId) renderSlots(teamsData);
-      }, (err) => {
-        console.error("Erro na telemetria:", err);
-        if (!isOfflineMode) activateOfflineMode();
-      });
+  function startMission() {
+    myTeamName = document.getElementById('teamNameInput').value.trim();
+    if (selectedSlot === 0 || myTeamName.length < 2) {
+      document.getElementById('errorSetup').style.display = 'block';
+      return;
     }
+    document.getElementById('screen-setup').classList.add('hidden');
+    document.getElementById('screen-video').classList.remove('hidden');
+    document.getElementById('hud').style.display = 'flex';
+    document.getElementById('leaderboard').style.display = 'block';
+    document.getElementById('teamBanner').innerText = myTeamName;
+    updateStatus(1);
+    startTimer();
+  }
 
-    function renderSlots(teams) {
-      if (isOfflineMode) return;
-      const container = document.getElementById('slotsContainer');
-      container.innerHTML = '';
-      for (let i = 1; i <= 4; i++) {
-        const teamInSlot = teams.find(t => t.id === `equipa${i}`);
-        const btn = document.createElement('div');
-        btn.className = `slot-btn ${teamInSlot ? 'occupied' : ''} ${selectedSlotId === `equipa${i}` ? 'selected' : ''}`;
-        btn.innerHTML = `<span>POSTO DE TRABALHO ${i}</span> <span>${teamInSlot ? teamInSlot.name : '[VAGO]'}</span>`;
-        if (!teamInSlot) {
-          btn.onclick = () => selectSlot(`equipa${i}`, btn);
-        }
-        container.appendChild(btn);
-      }
-    }
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      const mins = Math.floor(timeLeft / 60);
+      const secs = timeLeft % 60;
+      const display = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      document.getElementById('timerDisplay').innerText = display;
+      if (timeLeft < 300) document.getElementById('timerDisplay').classList.add('urgent');
+      if (timeLeft <= 0) { clearInterval(timerInterval); alert("TEMPO ESGOTADO!"); location.reload(); }
+    }, 1000);
+  }
 
-    window.selectSlot = (id, el) => {
-      document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedSlotId = id;
-    };
+  function updateStatus(lvl) {
+    // Simulação visual para os alunos no telemóvel
+    document.getElementById('status-' + selectedSlot).innerHTML = `Posto ${selectedSlot}: <span class="lvl-tag">LVL ${lvl}/6</span>`;
+    document.getElementById('status-' + selectedSlot).classList.add('active');
+  }
 
-    window.startApp = async () => {
-      if (!currentUser) return;
-      
-      const input = document.getElementById('teamInput');
-      const name = input.value.trim();
-      const errSetup = document.getElementById('errorSetup');
-      const btn = document.getElementById('btnStart');
+  function checkVideo() {
+    const val = document.getElementById('inputVideo').value.toLowerCase().trim();
+    if (val.includes('circular')) {
+      next('screen-video', 'screen-ciclo', 2);
+    } else showErr('errorVideo');
+  }
 
-      if (!selectedSlotId) {
-        errSetup.innerText = "ERRO: SELECIONE UM POSTO DE TRABALHO (CLIQUE NUM BOTÃO AZUL).";
-        errSetup.style.display = "block";
-        return;
-      }
+  function checkCiclo() {
+    const val = document.getElementById('inputCiclo').value.toLowerCase().trim();
+    if (val.includes('recurso')) {
+      next('screen-ciclo', 'screen-triagem', 3);
+    } else showErr('errorCiclo');
+  }
 
-      if (name.length < 2) {
-        errSetup.innerText = "ERRO: O NOME DA EQUIPA DEVE TER PELO MENOS 2 LETRAS.";
-        errSetup.style.display = "block";
-        return;
-      }
+  function checkTriagem() {
+    const val = document.getElementById('inputTriagem').value.toLowerCase().trim();
+    if (val === 'triagem') {
+      next('screen-triagem', 'screen-pet', 4);
+    } else showErr('errorTriagem');
+  }
 
-      errSetup.style.display = "none";
-      btn.innerText = "A PROCESSAR...";
-      btn.disabled = true;
+  function checkPET() {
+    const val = document.getElementById('inputPET').value.trim();
+    if (val === '5712') {
+      timeLeft += 300;
+      document.getElementById('bonusText').style.display = 'block';
+      document.getElementById('btnPET').disabled = true;
+      setTimeout(() => next('screen-pet', 'screen-precisao', 5), 3000);
+    } else if (val === '571') {
+      next('screen-pet', 'screen-precisao', 5);
+    } else showErr('errorPET');
+  }
 
-      try {
-        myTeamId = selectedSlotId;
-        if (!isOfflineMode) {
-          const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
-          await setDoc(teamRef, { 
-            name: name, 
-            level: 0, 
-            finished: false, 
-            timestamp: Date.now() 
-          });
-          document.getElementById('leaderboard').style.display = 'block';
-        }
+  function checkPrecisao() {
+    const val = document.getElementById('inputPrecisao').value.trim();
+    // Exemplo resposta 8
+    if (['6','7','8','9','10'].includes(val)) {
+      next('screen-precisao', 'screen-final', 6);
+    } else showErr('errorPrecisao');
+  }
 
-        document.getElementById('displayTeamName').innerText = name;
-        document.getElementById('hud').style.display = 'flex';
-        startTimer();
-        goToScreen('screen-start');
-      } catch (err) {
-        console.error("Erro ao iniciar unidade:", err);
-        activateOfflineMode();
-        // Tentar novamente em modo local
-        window.startApp();
-      }
-    };
+  function checkFinal() {
+    const val = document.getElementById('inputFinal').value.toLowerCase().trim();
+    if (val.includes('reduzir')) {
+      clearInterval(timerInterval);
+      next('screen-final', 'screen-success', 6);
+    } else showErr('errorFinal');
+  }
 
-    window.updateLevel = async (lvl) => {
-      if (!currentUser || !myTeamId) return;
-      try {
-        if (!isOfflineMode) {
-          const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
-          await updateDoc(teamRef, { 
-            level: lvl, 
-            finished: lvl === 6,
-            finishTime: lvl === 6 ? Date.now() : null
-          });
-        }
-        if (lvl === 6) document.getElementById('finishOrder').innerText = finishedTeamsCount || 1;
-      } catch (err) {
-        console.error("Erro ao atualizar nível:", err);
-      }
-    };
+  function next(curr, nextS, lvl) {
+    document.getElementById(curr).classList.add('hidden');
+    document.getElementById(nextS).classList.remove('hidden');
+    updateStatus(lvl);
+    window.scrollTo(0,0);
+  }
 
-    function startTimer() {
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        const mins = Math.floor(timeLeft / 60);
-        const secs = timeLeft % 60;
-        const timerEl = document.getElementById('timer');
-        timerEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        if (timeLeft < 300) timerEl.classList.add('urgent');
-        if (timeLeft <= 0) { clearInterval(timerInterval); goToScreen('screen-gameover'); }
-      }, 1000);
-    }
-
-    function goToScreen(id) {
-      document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
-      document.getElementById(id).classList.remove('hidden');
-      window.scrollTo(0,0);
-    }
-
-    window.checkLevel0 = () => {
-      if (document.getElementById('inputStart').value.toLowerCase().includes('circular')) {
-        updateLevel(1); goToScreen('screen-level1');
-      } else alert("CHAVE INCORRETA.");
-    };
-
-    window.checkLevel1 = () => {
-      if (document.getElementById('input1').value.toLowerCase().includes('recurso')) {
-        updateLevel(2); goToScreen('screen-level2');
-      }
-    };
-
-    window.checkLevel2 = () => {
-      if (document.getElementById('input2').value.toLowerCase().trim() === 'triagem') {
-        updateLevel(3); goToScreen('screen-level3');
-      }
-    };
-
-    window.checkLevel3 = () => {
-      const val = document.getElementById('input3').value.trim();
-      if (val === '5712') { 
-        timeLeft += 300; 
-        document.getElementById('bonusMsg').innerText = "✨ BÓNUS DETETADO: +5 MINUTOS!"; 
-        document.getElementById('bonusMsg').style.display = "block";
-        setTimeout(() => { updateLevel(4); goToScreen('screen-level4'); }, 2000);
-      } else if (val === '571') { updateLevel(4); goToScreen('screen-level4'); }
-    };
-
-    window.checkLevel4 = () => {
-      if (['6','7','8','9','10'].includes(document.getElementById('input4').value.trim())) {
-        updateLevel(5); goToScreen('screen-level5');
-      }
-    };
-
-    window.checkLevel5 = () => {
-      if (document.getElementById('input5').value.toLowerCase().includes('reduzir')) {
-        clearInterval(timerInterval);
-        updateLevel(6);
-        goToScreen('screen-success');
-      }
-    };
-
-    initAuth();
-  </script>
+  function showErr(id) {
+    const el = document.getElementById(id);
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+</script>
 </body>
 </html>
