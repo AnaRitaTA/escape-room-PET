@@ -232,6 +232,7 @@
       <input type="text" id="teamInput" placeholder="NOME DA EQUIPA..." autocomplete="off">
       <button id="btnStart" onclick="startApp()" disabled>A LIGAR...</button>
       <div id="errorSetup" style="color:var(--error-color); font-size: 0.8rem; margin-top: 10px; text-align: center; display: none;"></div>
+      <p id="offlineHint" style="display:none; text-align:center; font-size:0.7rem; color:#475569; margin-top:10px;">Problemas de rede? <a href="#" onclick="activateOfflineMode()" style="color:var(--accent-color)">Clique aqui para Modo Local</a></p>
     </div>
 
     <!-- PROTOCOLO 0: BRIEFING -->
@@ -334,9 +335,14 @@
     let currentUser = null;
     let finishedTeamsCount = 0;
     let selectedSlotId = null;
+    let isOfflineMode = false;
 
-    // Autenticação Robusta
     const initAuth = async () => {
+      // Timeout para mostrar dica de modo offline se a rede for lenta
+      setTimeout(() => {
+        if (!currentUser) document.getElementById('offlineHint').style.display = 'block';
+      }, 5000);
+
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
@@ -345,14 +351,31 @@
         }
       } catch (err) {
         console.error("Erro na ligação industrial:", err);
-        const errSetup = document.getElementById('errorSetup');
-        errSetup.innerText = "ERRO DE LIGAÇÃO AO SERVIDOR. REFRESH À PÁGINA.";
-        errSetup.style.display = "block";
+        activateOfflineMode();
+      }
+    };
+
+    window.activateOfflineMode = () => {
+      isOfflineMode = true;
+      currentUser = { uid: 'offline-user' };
+      const btn = document.getElementById('btnStart');
+      btn.disabled = false;
+      btn.innerText = "AUTENTICAR (MODO LOCAL)";
+      document.getElementById('slotsContainer').innerHTML = '<p style="color:orange; text-align:center; font-size:0.8rem;">MODO LOCAL ATIVO: Progresso não será partilhado.</p>';
+      
+      // Criar slots fictícios
+      const container = document.getElementById('slotsContainer');
+      for (let i = 1; i <= 4; i++) {
+        const btnSlot = document.createElement('div');
+        btnSlot.className = `slot-btn`;
+        btnSlot.innerHTML = `<span>POSTO DE TRABALHO ${i}</span> <span>[VAGO]</span>`;
+        btnSlot.onclick = () => selectSlot(`local${i}`, btnSlot);
+        container.appendChild(btnSlot);
       }
     };
 
     onAuthStateChanged(auth, (user) => {
-      if (user) {
+      if (user && !isOfflineMode) {
         currentUser = user;
         const btn = document.getElementById('btnStart');
         btn.disabled = false;
@@ -362,7 +385,7 @@
     });
 
     function listenToTeams() {
-      if (!currentUser) return;
+      if (!currentUser || isOfflineMode) return;
       const teamsRef = collection(db, 'artifacts', appId, 'public', 'data', 'teams');
       onSnapshot(teamsRef, (snapshot) => {
         const grid = document.getElementById('teamsGrid');
@@ -389,10 +412,14 @@
         });
 
         if (!myTeamId) renderSlots(teamsData);
-      }, (err) => console.error("Erro na telemetria:", err));
+      }, (err) => {
+        console.error("Erro na telemetria:", err);
+        if (!isOfflineMode) activateOfflineMode();
+      });
     }
 
     function renderSlots(teams) {
+      if (isOfflineMode) return;
       const container = document.getElementById('slotsContainer');
       container.innerHTML = '';
       for (let i = 1; i <= 4; i++) {
@@ -439,38 +466,41 @@
 
       try {
         myTeamId = selectedSlotId;
-        const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
-        await setDoc(teamRef, { 
-          name: name, 
-          level: 0, 
-          finished: false, 
-          timestamp: Date.now() 
-        });
+        if (!isOfflineMode) {
+          const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
+          await setDoc(teamRef, { 
+            name: name, 
+            level: 0, 
+            finished: false, 
+            timestamp: Date.now() 
+          });
+          document.getElementById('leaderboard').style.display = 'block';
+        }
 
         document.getElementById('displayTeamName').innerText = name;
         document.getElementById('hud').style.display = 'flex';
-        document.getElementById('leaderboard').style.display = 'block';
         startTimer();
         goToScreen('screen-start');
       } catch (err) {
         console.error("Erro ao iniciar unidade:", err);
-        btn.innerText = "TENTAR NOVAMENTE";
-        btn.disabled = false;
-        errSetup.innerText = "ERRO AO GRAVAR DADOS. VERIFIQUE A LIGAÇÃO.";
-        errSetup.style.display = "block";
+        activateOfflineMode();
+        // Tentar novamente em modo local
+        window.startApp();
       }
     };
 
     window.updateLevel = async (lvl) => {
       if (!currentUser || !myTeamId) return;
       try {
-        const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
-        await updateDoc(teamRef, { 
-          level: lvl, 
-          finished: lvl === 6,
-          finishTime: lvl === 6 ? Date.now() : null
-        });
-        if (lvl === 6) document.getElementById('finishOrder').innerText = finishedTeamsCount;
+        if (!isOfflineMode) {
+          const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
+          await updateDoc(teamRef, { 
+            level: lvl, 
+            finished: lvl === 6,
+            finishTime: lvl === 6 ? Date.now() : null
+          });
+        }
+        if (lvl === 6) document.getElementById('finishOrder').innerText = finishedTeamsCount || 1;
       } catch (err) {
         console.error("Erro ao atualizar nível:", err);
       }
