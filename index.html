@@ -28,7 +28,7 @@
     box-sizing: border-box;
   }
 
-  /* LEADERBOARD - MONITORIZAÇÃO EM TEMPO REAL */
+  /* LEADERBOARD */
   #leaderboard {
     width: 100%;
     max-width: 700px;
@@ -189,7 +189,6 @@
   .hidden { display: none; }
   @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-  /* TEAM SLOTS SELECTION */
   .slot-btn { 
     background: #1e293b; 
     border: 2px solid #334155; 
@@ -211,33 +210,27 @@
 </head>
 <body>
 
-  <!-- LEADERBOARD -->
   <div id="leaderboard">
     <div class="leaderboard-title">Monitorização da Frota de Engenharia</div>
-    <div class="teams-grid" id="teamsGrid">
-      <!-- Gerado via JavaScript -->
-    </div>
+    <div class="teams-grid" id="teamsGrid"></div>
   </div>
 
-  <!-- HUD TIMER -->
   <div id="hud">
     <div class="team-display">EQUIPA: <span id="displayTeamName">---</span></div>
     <div class="timer" id="timer">50:00</div>
   </div>
 
   <div class="container">
-    
-    <!-- ECRÃ 0: SELEÇÃO DE EQUIPA / SLOT -->
     <div id="screen-setup">
       <h1 style="text-align:center; color:white; text-transform:uppercase; letter-spacing:2px;">Sistema de Competição</h1>
       <div class="box">
-        <p>IDENTIFIQUEM A VOSSA UNIDADE DE TRABALHO. O PROGRESSO SERÁ TRANSMITIDO EM TEMPO REAL PARA A CENTRAL DE CONTROLO.</p>
+        <p>IDENTIFIQUEM A VOSSA UNIDADE DE TRABALHO PARA ATIVAR OS PROTOCOLOS INDUSTRIAIS.</p>
       </div>
       <div id="slotsContainer" style="margin-bottom: 25px;">
-        <p style="text-align:center; font-size:0.9rem; color: #64748b;">A estabelecer ligação com o servidor industrial...</p>
+        <p style="text-align:center; font-size:0.9rem; color: #64748b;">A estabelecer ligação ao servidor...</p>
       </div>
       <input type="text" id="teamInput" placeholder="NOME DA EQUIPA..." autocomplete="off">
-      <button id="btnStart" onclick="startApp()" disabled>Aguardar Ligação...</button>
+      <button id="btnStart" onclick="startApp()" disabled>A LIGAR...</button>
     </div>
 
     <!-- PROTOCOLO 0: BRIEFING -->
@@ -266,7 +259,7 @@
     <div id="screen-level2" class="hidden">
       <h2>PROTOCOLO: MAGNETISMO</h2>
       <div class="box">
-        <p>USEM O <strong>ÍMAN, A LINHA E A VARA</strong> NA VOSSA MESA PARA PESCAR OS RESÍDUOS.</p>
+        <p>USEM O <strong>ÍMAN, A LINHA E A VARA</strong> NA VOSSA MESA PARA PESCAR OS RESÍDUOS METÁLICOS.</p>
         <p style="color:white; font-weight:bold; margin-top: 10px;">DICA: AS PEÇAS PESCADAS REVELAM A PALAVRA TÉCNICA SECRETA.</p>
       </div>
       <input type="text" id="input2" placeholder="PALAVRA ENCONTRADA..." autocomplete="off">
@@ -319,16 +312,14 @@
     <!-- GAME OVER -->
     <div id="screen-gameover" class="hidden" style="text-align: center;">
       <h1 style="color: var(--error-color);">TEMPO ESGOTADO</h1>
-      <div class="box" style="border-left-color: var(--error-color);">A unidade de produção entrou em modo de hibernação por segurança.</div>
       <button onclick="location.reload()">REINICIAR SISTEMA</button>
     </div>
-
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = JSON.parse(__firebase_config);
     const app = initializeApp(firebaseConfig);
@@ -339,17 +330,26 @@
     let timeLeft = 3000;
     let timerInterval;
     let myTeamId = null;
-    let currentLevel = 0;
+    let currentUser = null;
     let finishedTeamsCount = 0;
 
-    const init = async () => {
+    // Autenticação Robusta
+    const initAuth = async () => {
       try {
-        await signInAnonymously(auth);
-      } catch (err) { console.error("Falha na autenticação industrial:", err); }
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (err) {
+        console.error("Erro na ligação industrial:", err);
+        document.getElementById('slotsContainer').innerHTML = '<p style="color:red; text-align:center;">ERRO DE LIGAÇÃO. RECARREGUE A PÁGINA.</p>';
+      }
     };
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        currentUser = user;
         const btn = document.getElementById('btnStart');
         btn.disabled = false;
         btn.innerText = "AUTENTICAR UNIDADE";
@@ -358,6 +358,7 @@
     });
 
     function listenToTeams() {
+      if (!currentUser) return;
       const teamsRef = collection(db, 'artifacts', appId, 'public', 'data', 'teams');
       onSnapshot(teamsRef, (snapshot) => {
         const grid = document.getElementById('teamsGrid');
@@ -371,7 +372,6 @@
           if (data.finished) finishedTeamsCount++;
         });
 
-        // Ordenar: Quem tem nível mais alto primeiro
         teamsData.sort((a, b) => b.level - a.level);
 
         teamsData.forEach(team => {
@@ -411,20 +411,16 @@
     };
 
     window.startApp = async () => {
+      if (!currentUser) return;
       const name = document.getElementById('teamInput').value.trim();
       if (!selectedSlotId || name.length < 2) {
-        alert("Atenção Engenheiro: Selecione um posto e identifique a equipa.");
+        alert("SELECIONE UM POSTO E IDENTIFIQUE A EQUIPA.");
         return;
       }
       
       myTeamId = selectedSlotId;
       const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
-      await setDoc(teamRef, { 
-        name, 
-        level: 0, 
-        finished: false, 
-        timestamp: Date.now() 
-      });
+      await setDoc(teamRef, { name, level: 0, finished: false, timestamp: Date.now() });
 
       document.getElementById('displayTeamName').innerText = name;
       document.getElementById('hud').style.display = 'flex';
@@ -434,20 +430,14 @@
     };
 
     window.updateLevel = async (lvl) => {
-      currentLevel = lvl;
-      if (myTeamId) {
-        const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
-        await updateDoc(teamRef, { 
-          level: lvl, 
-          finished: lvl === 6,
-          finishTime: lvl === 6 ? Date.now() : null
-        });
-        
-        if (lvl === 6) {
-          // Calcular ordem de chegada
-          document.getElementById('finishOrder').innerText = finishedTeamsCount;
-        }
-      }
+      if (!currentUser || !myTeamId) return;
+      const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
+      await updateDoc(teamRef, { 
+        level: lvl, 
+        finished: lvl === 6,
+        finishTime: lvl === 6 ? Date.now() : null
+      });
+      if (lvl === 6) document.getElementById('finishOrder').innerText = finishedTeamsCount;
     };
 
     function startTimer() {
@@ -471,7 +461,7 @@
     window.checkLevel0 = () => {
       if (document.getElementById('inputStart').value.toLowerCase().includes('circular')) {
         updateLevel(1); goToScreen('screen-level1');
-      } else alert("ACESSO NEGADO: Chave incorreta.");
+      } else alert("CHAVE INCORRETA.");
     };
 
     window.checkLevel1 = () => {
@@ -490,7 +480,7 @@
       const val = document.getElementById('input3').value.trim();
       if (val === '5712') { 
         timeLeft += 300; 
-        document.getElementById('bonusMsg').innerText = "✨ BÓNUS DETETADO: +5 MINUTOS ADICIONADOS!"; 
+        document.getElementById('bonusMsg').innerText = "✨ BÓNUS: +5 MINUTOS!"; 
         document.getElementById('bonusMsg').style.display = "block";
         setTimeout(() => { updateLevel(4); goToScreen('screen-level4'); }, 2000);
       } else if (val === '571') { updateLevel(4); goToScreen('screen-level4'); }
@@ -510,7 +500,7 @@
       }
     };
 
-    init();
+    initAuth();
   </script>
 </body>
 </html>
