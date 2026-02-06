@@ -205,7 +205,7 @@
   }
   
   .slot-btn.occupied { opacity: 0.6; cursor: not-allowed; border-color: var(--error-color); background: #111827; }
-  .slot-btn.selected { border-color: var(--accent-color); color: white; background: rgba(59, 130, 246, 0.2); }
+  .slot-btn.selected { border-color: white; color: white; background: var(--accent-color); box-shadow: 0 0 15px var(--accent-color); }
 </style>
 </head>
 <body>
@@ -231,6 +231,7 @@
       </div>
       <input type="text" id="teamInput" placeholder="NOME DA EQUIPA..." autocomplete="off">
       <button id="btnStart" onclick="startApp()" disabled>A LIGAR...</button>
+      <div id="errorSetup" style="color:var(--error-color); font-size: 0.8rem; margin-top: 10px; text-align: center; display: none;"></div>
     </div>
 
     <!-- PROTOCOLO 0: BRIEFING -->
@@ -332,6 +333,7 @@
     let myTeamId = null;
     let currentUser = null;
     let finishedTeamsCount = 0;
+    let selectedSlotId = null;
 
     // Autenticação Robusta
     const initAuth = async () => {
@@ -343,7 +345,9 @@
         }
       } catch (err) {
         console.error("Erro na ligação industrial:", err);
-        document.getElementById('slotsContainer').innerHTML = '<p style="color:red; text-align:center;">ERRO DE LIGAÇÃO. RECARREGUE A PÁGINA.</p>';
+        const errSetup = document.getElementById('errorSetup');
+        errSetup.innerText = "ERRO DE LIGAÇÃO AO SERVIDOR. REFRESH À PÁGINA.";
+        errSetup.style.display = "block";
       }
     };
 
@@ -394,7 +398,7 @@
       for (let i = 1; i <= 4; i++) {
         const teamInSlot = teams.find(t => t.id === `equipa${i}`);
         const btn = document.createElement('div');
-        btn.className = `slot-btn ${teamInSlot ? 'occupied' : ''}`;
+        btn.className = `slot-btn ${teamInSlot ? 'occupied' : ''} ${selectedSlotId === `equipa${i}` ? 'selected' : ''}`;
         btn.innerHTML = `<span>POSTO DE TRABALHO ${i}</span> <span>${teamInSlot ? teamInSlot.name : '[VAGO]'}</span>`;
         if (!teamInSlot) {
           btn.onclick = () => selectSlot(`equipa${i}`, btn);
@@ -403,7 +407,6 @@
       }
     }
 
-    let selectedSlotId = null;
     window.selectSlot = (id, el) => {
       document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
       el.classList.add('selected');
@@ -412,32 +415,65 @@
 
     window.startApp = async () => {
       if (!currentUser) return;
-      const name = document.getElementById('teamInput').value.trim();
-      if (!selectedSlotId || name.length < 2) {
-        alert("SELECIONE UM POSTO E IDENTIFIQUE A EQUIPA.");
+      
+      const input = document.getElementById('teamInput');
+      const name = input.value.trim();
+      const errSetup = document.getElementById('errorSetup');
+      const btn = document.getElementById('btnStart');
+
+      if (!selectedSlotId) {
+        errSetup.innerText = "ERRO: SELECIONE UM POSTO DE TRABALHO (CLIQUE NUM BOTÃO AZUL).";
+        errSetup.style.display = "block";
         return;
       }
-      
-      myTeamId = selectedSlotId;
-      const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
-      await setDoc(teamRef, { name, level: 0, finished: false, timestamp: Date.now() });
 
-      document.getElementById('displayTeamName').innerText = name;
-      document.getElementById('hud').style.display = 'flex';
-      document.getElementById('leaderboard').style.display = 'block';
-      startTimer();
-      goToScreen('screen-start');
+      if (name.length < 2) {
+        errSetup.innerText = "ERRO: O NOME DA EQUIPA DEVE TER PELO MENOS 2 LETRAS.";
+        errSetup.style.display = "block";
+        return;
+      }
+
+      errSetup.style.display = "none";
+      btn.innerText = "A PROCESSAR...";
+      btn.disabled = true;
+
+      try {
+        myTeamId = selectedSlotId;
+        const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
+        await setDoc(teamRef, { 
+          name: name, 
+          level: 0, 
+          finished: false, 
+          timestamp: Date.now() 
+        });
+
+        document.getElementById('displayTeamName').innerText = name;
+        document.getElementById('hud').style.display = 'flex';
+        document.getElementById('leaderboard').style.display = 'block';
+        startTimer();
+        goToScreen('screen-start');
+      } catch (err) {
+        console.error("Erro ao iniciar unidade:", err);
+        btn.innerText = "TENTAR NOVAMENTE";
+        btn.disabled = false;
+        errSetup.innerText = "ERRO AO GRAVAR DADOS. VERIFIQUE A LIGAÇÃO.";
+        errSetup.style.display = "block";
+      }
     };
 
     window.updateLevel = async (lvl) => {
       if (!currentUser || !myTeamId) return;
-      const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
-      await updateDoc(teamRef, { 
-        level: lvl, 
-        finished: lvl === 6,
-        finishTime: lvl === 6 ? Date.now() : null
-      });
-      if (lvl === 6) document.getElementById('finishOrder').innerText = finishedTeamsCount;
+      try {
+        const teamRef = doc(db, 'artifacts', appId, 'public', 'data', 'teams', myTeamId);
+        await updateDoc(teamRef, { 
+          level: lvl, 
+          finished: lvl === 6,
+          finishTime: lvl === 6 ? Date.now() : null
+        });
+        if (lvl === 6) document.getElementById('finishOrder').innerText = finishedTeamsCount;
+      } catch (err) {
+        console.error("Erro ao atualizar nível:", err);
+      }
     };
 
     function startTimer() {
@@ -480,7 +516,7 @@
       const val = document.getElementById('input3').value.trim();
       if (val === '5712') { 
         timeLeft += 300; 
-        document.getElementById('bonusMsg').innerText = "✨ BÓNUS: +5 MINUTOS!"; 
+        document.getElementById('bonusMsg').innerText = "✨ BÓNUS DETETADO: +5 MINUTOS!"; 
         document.getElementById('bonusMsg').style.display = "block";
         setTimeout(() => { updateLevel(4); goToScreen('screen-level4'); }, 2000);
       } else if (val === '571') { updateLevel(4); goToScreen('screen-level4'); }
