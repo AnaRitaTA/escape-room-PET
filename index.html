@@ -74,7 +74,7 @@
   h2 { font-size: 1.4rem; color: #60a5fa; text-align: center; text-transform: uppercase; }
 
   .description {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     line-height: 1.6;
     color: #cbd5e1;
     margin-bottom: 20px;
@@ -86,6 +86,29 @@
     border-left: 6px solid var(--accent-color);
     border-radius: 10px;
     margin: 20px 0;
+  }
+
+  .narrative-box {
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid var(--accent-color);
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 1rem;
+    color: #e2e8f0;
+    margin-bottom: 25px;
+    line-height: 1.5;
+    text-align: justify;
+  }
+
+  .secret-rule {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px dashed var(--error-color);
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #fca5a5;
+    margin-bottom: 20px;
+    text-align: center;
   }
 
   /* INPUTS E BOTÕES GIGANTES PARA TELEMÓVEL */
@@ -162,14 +185,21 @@
 
   <div class="container">
     
-    <!-- FASE 0: REGISTO -->
+    <!-- FASE 0: REGISTO E NARRATIVA -->
     <div id="screen-setup">
       <h1>MISSÃO 2050</h1>
-      <div class="description">
-        BEM-VINDOS À UNIDADE DE RECUPERAÇÃO DA SUSTENTABILIDADE. IDENTIFIQUEM A VOSSA EQUIPA PARA INICIAR OS PROTOCOLOS INDUSTRIAIS.
+      
+      <div class="narrative-box">
+        <strong>🚨 O CENÁRIO:</strong><br>
+        Engenheiros, bem-vindos ao ano 2050. O modelo de Economia Linear do século XXI levou ao esgotamento total dos recursos naturais do planeta. Hoje, o plástico não é considerado "lixo", mas sim o nosso <strong>Ouro Transparente</strong>. A vossa missão é reativar a tecnologia de pultrusão para transformar garrafas em filamento 3D. O futuro da colónia depende de vós.
       </div>
+
+      <div class="secret-rule">
+        <strong>🕵️ PROTOCOLO DE SIGILO:</strong> Escolham 2 ou 3 elementos para saírem do posto e desbloquearem tarefas na sala. Não falem alto para manter a vossa vantagem estratégica!
+      </div>
+
       <input type="text" id="teamNameInput" placeholder="NOME DA EQUIPA..." autocomplete="off">
-      <button onclick="startMission()">INICIAR MISSÃO</button>
+      <button onclick="startMission()">INICIAR PROTOCOLOS</button>
       <div id="errorSetup" class="error-box">INTRODUZA O NOME DA EQUIPA PARA AUTENTICAR.</div>
     </div>
 
@@ -178,11 +208,11 @@
       <h2>PROTOCOLO: BRIEFING</h2>
       <div class="box-info">
         <p class="description">ASSISTAM AO VÍDEO NA <strong>COLUNA 1 DO PADLET</strong> PARA VALIDAR O MODELO ECONÓMICO.</p>
-        <p style="color:white; font-weight:bold; font-size: 1.2rem;">QUAL É O MODELO QUE IMITA OS CICLOS DA NATUREZA?</p>
+        <p style="color:white; font-weight:bold; font-size: 1.2rem; text-align: center;">QUAL É O MODELO QUE IMITA OS CICLOS DA NATUREZA?</p>
       </div>
       <input type="text" id="inputVideo" placeholder="RESPOSTA..." autocomplete="off">
       <button onclick="checkVideo()">VALIDAR ACESSO</button>
-      <div id="errorVideo" class="error-box">CHAVE INCORRETA. CONSULTE O VÍDEO NO PADLET.</div>
+      <div id="errorVideo" class="error-box">CHAVE INCORRETA. CONSULTE O PADLET.</div>
     </div>
 
     <!-- FASE 2: CONCEITO -->
@@ -190,36 +220,36 @@
       <h2>PROTOCOLO: CICLO</h2>
       <div class="box-info">
         <p class="description">NA ECONOMIA CIRCULAR, O LIXO NÃO EXISTE.</p>
-        <p style="color:white; font-weight:bold; font-size: 1.2rem;">QUANDO UM MATERIAL VOLTA À FÁBRICA, ELE PASSA A SER UM NOVO _________?</p>
+        <p style="color:white; font-weight:bold; font-size: 1.2rem; text-align: center;">QUANDO UM MATERIAL VOLTA À FÁBRICA, ELE PASSA A SER UM NOVO _________?</p>
       </div>
       <input type="text" id="inputCiclo" placeholder="R..." autocomplete="off">
       <button onclick="checkCiclo()">CONFIRMAR DADOS</button>
-      <div id="errorCiclo" class="error-box">TENTE NOVAMENTE. O LIXO VIRA UM R...</div>
+      <div id="errorCiclo" class="error-box">TENTE NOVAMENTE.</div>
     </div>
 
     <!-- FASE 3: TRIAGEM -->
     <div id="screen-triagem" class="hidden">
       <h2>PROTOCOLO: SEPARAÇÃO</h2>
       <div class="box-info">
-        <p class="description">VÃO À MESA 1 USEM O <strong>O MATERIAL QUE LÁ ENCONTRAM</strong> PARA PESCAR OS RESÍDUOS METÁLICOS E SEPARÁ-LOS DOS PLÁSTICOS.</p>
-        <p style="color:white; font-weight:bold; font-size: 1.2rem;">QUAL É A PALAVRA SECRETA REVELADA?</p>
+        <p class="description">VÃO À MESA 1. USEM O <strong>MATERIAL QUE LÁ ENCONTRAM</strong> PARA PESCAR OS RESÍDUOS METÁLICOS E SEPARÁ-LOS DOS PLÁSTICOS.</p>
+        <p style="color:white; font-weight:bold; font-size: 1.2rem; text-align: center;">QUAL É A PALAVRA SECRETA REVELADA?</p>
       </div>
       <input type="text" id="inputTriagem" placeholder="PALAVRA..." autocomplete="off">
       <button onclick="checkTriagem()">VALIDAR TRIAGEM</button>
-      <div id="errorTriagem" class="error-box">PALAVRA INCORRETA. VERIFIQUE OS METAIS PESCADOS.</div>
+      <div id="errorTriagem" class="error-box">PALAVRA INCORRETA.</div>
     </div>
 
-    <!-- FASE 4: IDENTIDADE PET (BÓNUS 5712) -->
+    <!-- FASE 4: IDENTIDADE PET (BÓNUS) -->
     <div id="screen-pet" class="hidden">
       <h2>PROTOCOLO: IDENTIDADE</h2>
       <div class="box-info">
-        <p class="description">ANALISEM A SEQUÊNCIA DOS PLÁSTICOS NA MESA, QUAL O É O CÓDIGO QUE ESCONDEM? (Para os mais atentos há um bónus de tempo)  </p>
-        <p style="color:white; font-weight:bold; font-size: 1.2rem;">INTRODUZAM O CÓDIGO NUMÉRICO (SPI).</p>
+        <p class="description">ANALISEM A SEQUÊNCIA DOS PLÁSTICOS NA MESA. QUAL É O CÓDIGO QUE ESCONDEM? (Há um bónus para os mais atentos).</p>
+        <p style="color:white; font-weight:bold; font-size: 1.2rem; text-align: center;">INTRODUZAM O CÓDIGO SPI.</p>
       </div>
       <div id="bonusText" class="bonus-alert">✨ BÓNUS: TAMPA DETETADA! +5 MINUTOS ADICIONADOS.</div>
       <input type="text" id="inputPET" placeholder="CÓDIGO (EX: 123...)" autocomplete="off">
-      <button id="btnPET" onclick="checkPET()">AUTENTICAR POLÍMEROS</button>
-      <div id="errorPET" class="error-box">CÓDIGO INVÁLIDO. ANALISE OS SÍMBOLOS SPI NA MESA.</div>
+      <button id="btnPET" onclick="checkPET()">AUTENTICAR</button>
+      <div id="errorPET" class="error-box">CÓDIGO INVÁLIDO.</div>
     </div>
 
     <!-- FASE 5: PRECISÃO -->
@@ -227,11 +257,11 @@
       <h2>PROTOCOLO: PRECISÃO</h2>
       <div class="box-info">
         <p class="description">USEM O PAQUÍMETRO E A TABELA EM PAPEL NA VOSSA MESA.</p>
-        <p style="color:white; font-weight:bold; font-size: 1.2rem;">QUAL É A LARGURA DE CORTE (MM)?</p>
+        <p style="color:white; font-weight:bold; font-size: 1.2rem; text-align: center;">QUAL É A LARGURA DE CORTE (MM)?</p>
       </div>
       <input type="text" id="inputPrecisao" placeholder="LARGURA (MM)..." autocomplete="off">
       <button onclick="checkPrecisao()">CALIBRAR LÂMINA</button>
-      <div id="errorPrecisao" class="error-box">VALOR INCORRETO PARA A ESPESSURA MEDIDA.</div>
+      <div id="errorPrecisao" class="error-box">VALOR INCORRETO.</div>
     </div>
 
     <!-- FASE 6: ESTRATÉGIA -->
@@ -242,7 +272,7 @@
       </div>
       <input type="text" id="inputFinal" placeholder="R..." autocomplete="off">
       <button onclick="checkFinal()">LIGAR MOTOR FUSÃO</button>
-      <div id="errorFinal" class="error-box">ESTRATÉGIA INCORRETA. QUAL É O R MAIS IMPORTANTE?</div>
+      <div id="errorFinal" class="error-box">ESTRATÉGIA INCORRETA.</div>
     </div>
 
     <!-- SUCESSO -->
@@ -251,8 +281,11 @@
       <div class="box-info" style="border-color: #4ade80;">
         <p class="description" style="color:white; font-weight:bold;">PARABÉNS EQUIPA!</p>
         <p>A MISSÃO FOI CONCLUÍDA. AGUARDEM PELO DINAMIZADOR PARA INICIAR A PRODUÇÃO.</p>
+        <p style="color: #60a5fa; font-size: 0.9rem; margin-top: 15px; border-top: 1px solid #1e293b; pt-10;">
+          <strong>PRÓXIMA ETAPA:</strong> Serão agora dadas as instruções para o vosso <strong>Registo Narrativo Industrial (Banda Desenhada)</strong>.
+        </p>
       </div>
-      <button onclick="location.reload()">NOVA EQUIPA / REINICIAR</button>
+      <button onclick="location.reload()">REINICIAR UNIDADE</button>
     </div>
 
   </div>
@@ -318,7 +351,6 @@
 
   function checkPrecisao() {
     const val = document.getElementById('inputPrecisao').value.trim();
-    // Aceita valores comuns da tabela técnica
     if (['6','7','8','9','10'].includes(val)) next('screen-precisao', 'screen-final');
     else showErr('errorPrecisao');
   }
@@ -344,5 +376,3 @@
 </script>
 </body>
 </html>
-
-
