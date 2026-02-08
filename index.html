@@ -256,7 +256,7 @@
     <div id="screen-precisao" class="hidden">
       <h2>PROTOCOLO: PRECISÃO</h2>
       <div class="box-info">
-        <p class="description">USEM O PAQUÍMETRO E A TABELA EM PAPEL NA VOSSA MESA.</p>
+        <p class="description">USEM O PAQUÍMETRO E A TABELA DE PRECISÃO QUE ESTÁ NO PADLET.</p>
         <p style="color:white; font-weight:bold; font-size: 1.2rem; text-align: center;">QUAL É A LARGURA DE CORTE (MM)?</p>
       </div>
       <input type="text" id="inputPrecisao" placeholder="LARGURA (MM)..." autocomplete="off">
@@ -351,7 +351,7 @@
 
   function checkPrecisao() {
     const val = document.getElementById('inputPrecisao').value.trim();
-    if (['6','7','8','9','10'].includes(val)) next('screen-precisao', 'screen-final');
+    if (['6','7','8','9','10','12'].includes(val)) next('screen-precisao', 'screen-final');
     else showErr('errorPrecisao');
   }
 
@@ -376,3 +376,4 @@
 </script>
 </body>
 </html>
+
